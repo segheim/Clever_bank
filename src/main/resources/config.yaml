@@ -1,0 +1,16 @@
+db:
+  driver: com.mysql.cj.jdbc.Driver
+  user: root
+  password: root
+  poolsize: 8
+  url: jdbc:mysql://localhost:3306/library
+  
+##################################################
+url:
+  author: controller?command=author_page
+  main: controller?command=main_page
+  account: controller?command=account_page
+  catalog: controller?command=catalog_page
+  error: /controller?command=error_page
+#  reader.order=controller?command=reader_book_order_page
+#  librarian.order=controller?command=librarian_book_order_page
