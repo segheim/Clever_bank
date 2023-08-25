@@ -1,2 +1,7 @@
-package org.example.clever_bank.entity;public class Entity {
+package org.example.clever_bank.entity;
+
+public interface Entity {
+
+    Long getId();
+
 }

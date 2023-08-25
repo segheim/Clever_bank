@@ -1,19 +1,38 @@
-package org.example;
+package org.example.clever_bank;
 
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
+import org.example.clever_bank.connection.ConnectionPool;
+import org.example.clever_bank.dao.BankDao;
+import org.example.clever_bank.dao.impl.AccountDaoImpl;
+import org.example.clever_bank.dao.impl.BankDaoImpl;
+import org.example.clever_bank.dao.impl.TransactionDaoImpl;
+import org.example.clever_bank.entity.Account;
+import org.example.clever_bank.entity.Bank;
+import org.example.clever_bank.entity.BankAccount;
+import org.example.clever_bank.entity.Transaction;
+import org.example.clever_bank.util.ConfigurationManager;
+
+import java.util.List;
+import java.util.Optional;
+
+
 public class Main {
     public static void main(String[] args) {
-        // Press Alt+Enter with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
 
-        // Press Shift+F10 or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
+//        System.out.println(ConfigurationManager.getProperty("db.url"));
 
-            // Press Shift+F9 to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Ctrl+F8.
-            System.out.println("i = " + i);
-        }
+        ConnectionPool.lockingPool().init();
+//        Optional cleverBank = BankDaoImpl.getInstance().create(new Bank(null, "bet-bank"));
+//        System.out.println(BankDaoImpl.getInstance().read(1L).get());
+//        List<Bank> banks = BankDaoImpl.getInstance().readAll();
+//        System.out.println(BankDaoImpl.getInstance().update(Bank.builder().id(2L).name("good_bank").build()));
+//        System.out.println(BankDaoImpl.getInstance().delete(2L));
+//        System.out.println(banks);
+
+//        System.out.println(AccountDaoImpl.getInstance().create(new Account(null, "so", "3")).get());
+//        System.out.println(AccountDaoImpl.getInstance().read(2L));
+//        System.out.println(AccountDaoImpl.getInstance().update(new Account(2L, "No", "2")));
+//        System.out.println(AccountDaoImpl.getInstance().delete(3L));
+//        TransactionDaoImpl.getInstance().create(Transaction.builder().bankAccountFrom(new BankAccount(1L, null, null, null)).build())
     }
+
 }

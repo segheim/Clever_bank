@@ -1,9 +1,9 @@
 db:
-  driver: com.mysql.cj.jdbc.Driver
-  user: root
-  password: root
+  driver: org.postgresql.Driver
+  user: postgres
+  password: postgres
   poolsize: 8
-  url: jdbc:mysql://localhost:3306/library
+  url: jdbc:postgresql://localhost:5432/clever_bank
   
 ##################################################
 url:
@@ -14,3 +14,14 @@ url:
   error: /controller?command=error_page
 #  reader.order=controller?command=reader_book_order_page
 #  librarian.order=controller?command=librarian_book_order_page
+
+##################################################
+
+table:
+  id: id
+  name: name
+  login: login
+  pass: password
+  bank_account_id_from: bank_account_id_from
+  bank_account_id_to: bank_account_id_to
+  sum: sum

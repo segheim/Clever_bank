@@ -1,2 +1,5 @@
-package org.example.clever_bank.dao;public class BankDao {
+package org.example.clever_bank.dao;
+
+public interface BankDao<Bank> {
+
 }
