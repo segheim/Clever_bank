@@ -14,12 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao<Account> {
+public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 
     private static final Logger logger = LogManager.getLogger(AccountDaoImpl.class);
 
     public static final String INSERT_NEW_ACCOUNT = "insert into accounts (login, password) values (?,?)";
     public static final String SELECT_ACCOUNT_BY_ID = "select id as id, login as login, password as password from accounts where id=?";
+    public static final String SELECT_ACCOUNT_BY_LOGIN = "select id as id, login as login, password as password from accounts where login=?";
     public static final String SELECT_ALL_ACCOUNTS = "select id as id, login as login, password as password from accounts";
     public static final String UPDATE_ACCOUNT = "update accounts set login=?, password=? where id=?";
     public static final String DELETE_ACCOUNT = "delete from accounts where id=?";
@@ -58,6 +59,25 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao<A
         try (final Connection connection = pool.takeConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ACCOUNT_BY_ID)) {
             preparedStatement.setLong(1, id);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                final Account account = executeAccount(resultSet);
+                return Optional.of(account);
+            }
+        } catch (SQLException e) {
+            logger.error("sql error, could not find account", e);
+            throw new DaoException("Account is not read", e);
+        }
+        return readAccount;
+    }
+
+    @Override
+    public Optional<Account> readByLogin(String login) {
+        logger.trace("start read by login account");
+        Optional<Account> readAccount = Optional.empty();
+        try (final Connection connection = pool.takeConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ACCOUNT_BY_LOGIN)) {
+            preparedStatement.setString(1, login);
             final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 final Account account = executeAccount(resultSet);
@@ -135,6 +155,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao<A
     public static AccountDaoImpl getInstance() {
         return Holder.INSTANCE;
     }
+
 
     private static class Holder {
         public static final AccountDaoImpl INSTANCE = new AccountDaoImpl(ConnectionPool.lockingPool(), logger);

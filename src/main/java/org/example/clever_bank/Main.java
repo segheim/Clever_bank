@@ -10,9 +10,12 @@ import org.example.clever_bank.entity.Bank;
 import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.util.ConfigurationManager;
+import org.example.clever_bank.view.Menu;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
+import java.util.SortedMap;
 
 
 public class Main {
@@ -33,6 +36,28 @@ public class Main {
 //        System.out.println(AccountDaoImpl.getInstance().update(new Account(2L, "No", "2")));
 //        System.out.println(AccountDaoImpl.getInstance().delete(3L));
 //        TransactionDaoImpl.getInstance().create(Transaction.builder().bankAccountFrom(new BankAccount(1L, null, null, null)).build())
+//
+        Menu menu = new Menu();
+        menu.getMenu();
+//        Scanner scanner = new Scanner(System.in);
+//        int choice;
+//        System.out.println("Select a bank:");
+//        System.out.println("1. Good Bank.");
+//        System.out.println("2. Best Bank.");
+//        System.out.println("3. Full  Bank.");
+//        System.out.println("4. Big Bank.");
+//        System.out.println("5. Top Bank.");
+//        System.out.println("Enter your choice: ");
+//        while (true) {
+//            choice = scanner.nextInt();
+//            scanner.nextLine();
+//            if (choice > 5 || choice < 1) {
+//                System.out.println("Enter correct number of action! Try again: ");
+//            } else {
+//                break;
+//            }
+//        }
+//        System.out.println("Otside!!!!");
     }
 
 }

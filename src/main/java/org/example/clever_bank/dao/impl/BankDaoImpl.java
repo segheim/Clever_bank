@@ -40,7 +40,10 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao<Bank> {
                 final ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
                 if (generatedKeys.next()) {
                     long key = generatedKeys.getLong(1);
-                    createdBank = Optional.of(new Bank(key, bank.getName()));
+                    createdBank = Optional.of(Bank.builder()
+                                    .id(key)
+                                    .name(bank.getName())
+                                    .build());
                 }
             }
         } catch (SQLException e) {
@@ -126,7 +129,8 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao<Bank> {
 
     private Bank executeBank(ResultSet resultSet) throws SQLException {
             return new Bank(resultSet.getLong(ConfigurationManager.getProperty("table.id")),
-                    resultSet.getString(ConfigurationManager.getProperty("table.name")));
+                    resultSet.getString(ConfigurationManager.getProperty("table.name")),
+                    List.of());
     }
 
     public static BankDaoImpl getInstance() {
