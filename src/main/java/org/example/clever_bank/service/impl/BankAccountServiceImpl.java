@@ -53,8 +53,8 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public BankAccount replenishmentAccount(Long id, BigDecimal amount){
-        BankAccount bankAccount = bankAccountDao.findByAccountIdAndBankId(id, CLEVER_BANK_ID).orElseThrow(() -> new NotFoundEntityException("Not found bank account"));
+    public BankAccount replenishmentAccount(Long id, BigDecimal amount) {
+        BankAccount bankAccount = bankAccountDao.readByAccountIdAndBankId(id, CLEVER_BANK_ID).orElseThrow(() -> new NotFoundEntityException("Not found bank account"));
         BigDecimal balance = bankAccount.getBalance();
         bankAccount.setBalance(balance.add(amount));
         BankAccount updatedBankAccount = bankAccountDao.update(bankAccount).orElseThrow(() -> new ServiceException("Operation is failed"));
@@ -63,10 +63,10 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public BankAccount withdrawal(Long id, BigDecimal moneyAmount) {
-        BankAccount bankAccount = bankAccountDao.findByAccountIdAndBankId(id, CLEVER_BANK_ID).orElseThrow(() -> new NotFoundEntityException("Not found bank account"));
+        BankAccount bankAccount = bankAccountDao.readByAccountIdAndBankId(id, CLEVER_BANK_ID).orElseThrow(() -> new NotFoundEntityException("Not found bank account"));
         BigDecimal balance = bankAccount.getBalance();
         BigDecimal result = balance.subtract(moneyAmount);
-        if (result.compareTo(BigDecimal.ZERO) > 0) {
+        if (result.compareTo(BigDecimal.ZERO) >= 0) {
             throw new ServiceException("Not enough funding");
         }
         bankAccount.setBalance(result);
@@ -76,18 +76,18 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 
     @Override
-    public BigDecimal externalTransfer(Long ownerId, Long bankId, String loginUser, BigDecimal amount) {
+    public BigDecimal transferMoney(Long ownerId, Long bankId, String loginUser, BigDecimal amount) {
         BankAccount owner;
         Connection connection = ConnectionPool.lockingPool().takeConnection();
         try {
             connection.setAutoCommit(false);
-            BankAccount bankAccountOwner = bankAccountDao.findByAccountIdAndBankId(ownerId, bankId).orElseThrow(() -> new NotFoundEntityException("Account owner is not found"));
+            BankAccount bankAccountOwner = bankAccountDao.readByAccountIdAndBankId(ownerId, CLEVER_BANK_ID).orElseThrow(() -> new NotFoundEntityException("Account owner is not found"));
 
-            BankAccount bankAccountUser = bankAccountDao.findByAccountLoginAndBankId(loginUser, bankId).orElseThrow(() -> new NotFoundEntityException("Account of user is not found"));
+            BankAccount bankAccountUser = bankAccountDao.readByAccountLoginAndBankId(loginUser, bankId).orElseThrow(() -> new NotFoundEntityException("Account of user is not found"));
 
             BigDecimal ownerBalance = bankAccountOwner.getBalance();
             BigDecimal newOwnerBalance = ownerBalance.subtract(amount);
-            if (newOwnerBalance.compareTo(BigDecimal.ZERO) > 0) {
+            if (newOwnerBalance.compareTo(BigDecimal.ZERO) < 0) {
                 throw new ServiceException("Not enough funding");
             }
             bankAccountOwner.setBalance(newOwnerBalance);
@@ -123,7 +123,7 @@ public class BankAccountServiceImpl implements BankAccountService {
             }
         }
         return owner.getBalance();
-    }
+
     }
 
 
@@ -136,3 +136,4 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
 }
+

@@ -6,8 +6,8 @@ import java.util.Optional;
 
 public interface BankAccountDao{
 
-    Optional<BankAccount> findByAccountIdAndBankId(Long id, Long bankId);
+    Optional<BankAccount> readByAccountIdAndBankId(Long id, Long bankId);
 
-    Optional<BankAccount> findByAccountLoginAndBankId(String login, Long bankId);
+    Optional<BankAccount> readByAccountLoginAndBankId(String login, Long bankId);
 
 }

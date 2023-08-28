@@ -9,6 +9,8 @@ import java.util.Scanner;
 
 public class BankActivityMenu {
 
+    public static final long CLEVER_BANK_ID = 1L;
+
     private final Scanner scanner;
     private final BankAccountService bankAccountService;
 
@@ -18,7 +20,7 @@ public class BankActivityMenu {
 
     }
 
-    public String  replenishmentAccount(Long id) {
+    public String replenishmentAccount(Long id) {
         System.out.println("Enter deposit amount: ");
         BigDecimal moneyAmount = scanner.nextBigDecimal();
         scanner.nextLine();
@@ -53,7 +55,7 @@ public class BankActivityMenu {
         scanner.nextLine();
         BigDecimal balance;
         try {
-            balance= bankAccountService.internalTransfer(id, transferAccountLogin, moneyAmount);
+            balance = bankAccountService.transferMoney(id, CLEVER_BANK_ID, transferAccountLogin, moneyAmount);
         } catch (Exception e) {
             return String.format("Operation is failed. %s", e.getMessage());
         }
@@ -78,15 +80,19 @@ public class BankActivityMenu {
                 break;
             }
         }
-        int bankId = choice + 1;
+        Long bankId = Long.valueOf(choice + 1);
         System.out.println("Enter account login for external transfer: ");
         String transferAccountLogin = scanner.nextLine();
-        scanner.nextLine();
         System.out.println("Enter transfer money amount: ");
         BigDecimal moneyAmount = scanner.nextBigDecimal();
         scanner.nextLine();
-        bankAccountService.externalTransfer();
-        return "Good";
+        BigDecimal balance;
+        try {
+            balance = bankAccountService.transferMoney(id, bankId, transferAccountLogin, moneyAmount);
+        } catch (Exception e) {
+            return String.format("Operation is failed. %s", e.getMessage());
+        }
+        return String.format("Operation is completed. Balance=%s", balance.toString());
     }
 
     public static BankActivityMenu getInstance() {
