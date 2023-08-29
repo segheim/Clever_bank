@@ -9,12 +9,15 @@ import org.example.clever_bank.entity.Account;
 import org.example.clever_bank.entity.Bank;
 import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.entity.Transaction;
+import org.example.clever_bank.pdf.CreatorBill;
 import org.example.clever_bank.service.impl.BankAccountServiceImpl;
 import org.example.clever_bank.util.ConfigurationManager;
 import org.example.clever_bank.view.BankActivityMenu;
 import org.example.clever_bank.view.Menu;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -44,7 +47,15 @@ public class Main {
 //        System.out.println(BankActivityMenu.getInstance().replenishmentAccount(1L));
 //
 //        System.out.println(BankAccountServiceImpl.getInstance().transferMoney(1l, 1l, "no", BigDecimal.valueOf(20)));
-        System.out.println(TransactionDaoImpl.getInstance().read(2L));
+//        System.out.println(TransactionDaoImpl.getInstance().read(2L));
+        try {
+            CreatorBill.getInstance().createBill("1", "type", "bank1", "bank2", "ba1", "ba2", BigDecimal.TEN);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

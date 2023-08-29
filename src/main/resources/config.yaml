@@ -34,3 +34,18 @@ table:
   owner_account_login: owner_account_login
   user_account_id: user_account_id
   user_account_login: user_account_login
+
+###################################################
+
+pdf:
+  template: template.pdf
+  bill_id: bill_id
+  date: date
+  time: time
+  type: type
+  bank_sender: bank_sender
+  bank_recipient: bank_recipient
+  ba_sender: ba_sender
+  ba_recipient: ba_recipient
+  amount: amount
+  path.save: check/bill%s.pdf
