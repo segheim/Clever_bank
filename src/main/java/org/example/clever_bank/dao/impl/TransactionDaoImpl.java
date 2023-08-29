@@ -21,12 +21,12 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
     private static final Logger logger = LogManager.getLogger(TransactionDaoImpl.class);
 
     public static final String INSERT_NEW_TRANSACTION = "insert into transactions (bank_account_id_from, bank_account_id_to, sum) values (?, ?, ?)";
-    public static final String SELECT_ALL_TRANSACTIONS = "select t.id as id, t.sum as sum, ba1.id as owner_ba_id, ba1.balance as owner_ba_balance," +
+    public static final String SELECT_ALL_TRANSACTIONS = "select t.id as id, t.sum as sum, t.date_create as date_create, ba1.id as owner_ba_id, ba1.balance as owner_ba_balance," +
             " ba2.id as user_ba_id, ba2.balance as user_ba_balance, a1.id as owner_account_id, a1.login as owner_account_login," +
             " a2.id as user_account_id, a2.login as user_account_login from transactions t join bank_accounts ba1" +
             " on ba1.id=t.bank_account_id_from join bank_accounts ba2 on ba2.id=t.bank_account_id_to join accounts a1" +
             " on ba1.account_id = a1.id join accounts a2 on ba2.account_id = a2.id";
-    public static final String SELECT_TRANSACTION_BY_ID = "select t.id as id, t.sum as sum, ba1.id as owner_ba_id, ba1.balance as owner_ba_balance," +
+    public static final String SELECT_TRANSACTION_BY_ID = "select t.id as id, t.sum as sum, t.date_create as date_create, ba1.id as owner_ba_id, ba1.balance as owner_ba_balance," +
             " ba2.id as user_ba_id, ba2.balance as user_ba_balance, a1.id as owner_account_id, a1.login as owner_account_login," +
             " a2.id as user_account_id, a2.login as user_account_login from transactions t join bank_accounts ba1" +
             " on ba1.id=t.bank_account_id_from join bank_accounts ba2 on ba2.id=t.bank_account_id_to join accounts a1" +
@@ -128,6 +128,7 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
                         .balance(resultSet.getBigDecimal(ConfigurationManager.getProperty("table.user_ba_balance")))
                         .build())
                 .sum(resultSet.getBigDecimal(ConfigurationManager.getProperty("table.sum")))
+                .dateCreate(resultSet.getTimestamp(ConfigurationManager.getProperty("table.date_create")).toLocalDateTime())
                 .build();
     }
 

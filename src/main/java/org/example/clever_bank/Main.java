@@ -44,18 +44,21 @@ public class Main {
 //        TransactionDaoImpl.getInstance().create(Transaction.builder().bankAccountFrom(new BankAccount(1L, null, null, null)).build())
 //
 //        Menu menu = new Menu();
+//        menu.getMenu();
 //        System.out.println(BankActivityMenu.getInstance().replenishmentAccount(1L));
 //
 //        System.out.println(BankAccountServiceImpl.getInstance().transferMoney(1l, 1l, "no", BigDecimal.valueOf(20)));
 //        System.out.println(TransactionDaoImpl.getInstance().read(2L));
-        try {
-            CreatorBill.getInstance().createBill("1", "type", "bank1", "bank2", "ba1", "ba2", BigDecimal.TEN);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            CreatorBill.getInstance().createBill("1", "type", "bank1", "bank2", "ba1", "ba2", BigDecimal.TEN);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        } catch (URISyntaxException e) {
+//            throw new RuntimeException(e);
+//        }
+//        System.out.println(BankAccountServiceImpl.getInstance().replenishmentAccount(1L, BigDecimal.valueOf(300)));
 
+        System.out.println(BankAccountServiceImpl.getInstance().withdrawal(1L, BigDecimal.valueOf(300)));
     }
 
 }

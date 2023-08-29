@@ -16,7 +16,6 @@ url:
 #  librarian.order=controller?command=librarian_book_order_page
 
 ##################################################
-
 table:
   id: id
   name: name
@@ -34,9 +33,9 @@ table:
   owner_account_login: owner_account_login
   user_account_id: user_account_id
   user_account_login: user_account_login
+  date_create: date_create
 
 ###################################################
-
 pdf:
   template: template.pdf
   bill_id: bill_id
@@ -49,3 +48,4 @@ pdf:
   ba_recipient: ba_recipient
   amount: amount
   path.save: check/bill%s.pdf
+

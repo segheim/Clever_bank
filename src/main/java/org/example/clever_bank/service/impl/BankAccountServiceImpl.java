@@ -4,15 +4,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.impl.BankAccountDaoImpl;
+import org.example.clever_bank.dao.impl.BankDaoImpl;
 import org.example.clever_bank.dao.impl.TransactionDaoImpl;
+import org.example.clever_bank.entity.Bank;
 import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.entity.Transaction;
-import org.example.clever_bank.exception.DaoException;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
+import org.example.clever_bank.pdf.CreatorBill;
 import org.example.clever_bank.service.BankAccountService;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -23,13 +27,18 @@ public class BankAccountServiceImpl implements BankAccountService {
     private static final Logger logger = LogManager.getLogger(BankAccountServiceImpl.class);
 
     public static final Long CLEVER_BANK_ID = 1L;
+    public static final String CLEVER_BANK_NAME = "clever_bank";
 
     private final BankAccountDaoImpl bankAccountDao;
     private final TransactionDaoImpl transactionDao;
+    private final BankDaoImpl bankDao;
+    private final CreatorBill creatorBill;
 
-    public BankAccountServiceImpl(BankAccountDaoImpl bankAccountDaoImpl, TransactionDaoImpl transactionDao) {
+    public BankAccountServiceImpl(BankAccountDaoImpl bankAccountDaoImpl, TransactionDaoImpl transactionDao, BankDaoImpl bankDao, CreatorBill creatorBill) {
         this.bankAccountDao = bankAccountDaoImpl;
         this.transactionDao = transactionDao;
+        this.bankDao = bankDao;
+        this.creatorBill = creatorBill;
     }
 
     @Override
@@ -59,26 +68,82 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public BankAccount replenishmentAccount(Long id, BigDecimal amount) {
-        BankAccount bankAccount = bankAccountDao.readByAccountIdAndBankId(id, CLEVER_BANK_ID).orElseThrow(() -> new NotFoundEntityException("Not found bank account"));
-        BigDecimal balance = bankAccount.getBalance();
-        bankAccount.setBalance(balance.add(amount));
-        BankAccount updatedBankAccount = bankAccountDao.update(bankAccount).orElseThrow(() -> new ServiceException("Operation is failed"));
+        BankAccount updatedBankAccount;
+        Connection connection = ConnectionPool.lockingPool().takeConnection();
+        try {
+            connection.setAutoCommit(false);
+            BankAccount bankAccount = bankAccountDao.readByAccountIdAndBankId(id, CLEVER_BANK_ID)
+                    .orElseThrow(() -> new NotFoundEntityException("Not found bank account"));
+            BigDecimal balance = bankAccount.getBalance();
+            bankAccount.setBalance(balance.add(amount));
+            updatedBankAccount = bankAccountDao.update(bankAccount)
+                    .orElseThrow(() -> new ServiceException("Operation is failed"));
+
+            Transaction transaction = craeteNewTransaction(amount, bankAccount, bankAccount);
+            creatorBill.createBill(transaction.getId(), "Replenishment", CLEVER_BANK_NAME, CLEVER_BANK_NAME,
+                    bankAccount.getId(), bankAccount.getId(), amount, transaction.getDateCreate());
+
+            connection.commit();
+        } catch (SQLException | NotFoundEntityException | ServiceException | IOException | URISyntaxException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                logger.error("Database access error occurs connection rollback", ex);
+                throw new ServiceException("Database access error occurs connection rollback");
+            }
+            throw new ServiceException(String.format("could not transfer money. %s", e.getMessage()));
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+                connection.close();
+            } catch (SQLException e) {
+                logger.error("Database access error occurs connection close", e);
+            }
+        }
         return updatedBankAccount;
     }
 
     @Override
-    public BankAccount withdrawal(Long id, BigDecimal moneyAmount) {
-        BankAccount bankAccount = bankAccountDao.readByAccountIdAndBankId(id, CLEVER_BANK_ID).orElseThrow(() -> new NotFoundEntityException("Not found bank account"));
-        BigDecimal balance = bankAccount.getBalance();
-        BigDecimal result = balance.subtract(moneyAmount);
-        if (result.compareTo(BigDecimal.ZERO) >= 0) {
-            throw new ServiceException("Not enough funding");
+    public BankAccount withdrawal(Long id, BigDecimal amount) {
+        BankAccount updatedBankAccount;
+        Connection connection = ConnectionPool.lockingPool().takeConnection();
+        try {
+            connection.setAutoCommit(false);
+            BankAccount bankAccount = bankAccountDao.readByAccountIdAndBankId(id, CLEVER_BANK_ID)
+                    .orElseThrow(() -> new NotFoundEntityException("Not found bank account"));
+            BigDecimal balance = bankAccount.getBalance();
+            BigDecimal result = balance.subtract(amount);
+            if (result.compareTo(BigDecimal.ZERO) < 0) {
+                throw new ServiceException("Not enough funding");
+            }
+            bankAccount.setBalance(result);
+            updatedBankAccount = bankAccountDao.update(bankAccount)
+                    .orElseThrow(() -> new ServiceException("Operation is failed"));
+
+            Transaction transaction = craeteNewTransaction(amount, bankAccount, bankAccount);
+            creatorBill.createBill(transaction.getId(), "Withdrawal", CLEVER_BANK_NAME, CLEVER_BANK_NAME,
+                    bankAccount.getId(), bankAccount.getId(), amount, transaction.getDateCreate());
+
+            connection.commit();
+        } catch (SQLException | NotFoundEntityException | ServiceException | IOException | URISyntaxException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                logger.error("Database access error occurs connection rollback", ex);
+                throw new ServiceException("Database access error occurs connection rollback");
+            }
+            throw new ServiceException(String.format("could not transfer money. %s", e.getMessage()));
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+                connection.close();
+            } catch (SQLException e) {
+                logger.error("Database access error occurs connection close", e);
+            }
         }
-        bankAccount.setBalance(result);
-        BankAccount updatedBankAccount = bankAccountDao.update(bankAccount).orElseThrow(() -> new ServiceException("Operation is failed"));
+
         return updatedBankAccount;
     }
-
 
     @Override
     public BigDecimal transferMoney(Long ownerId, Long bankId, String loginUser, BigDecimal amount) {
@@ -86,17 +151,13 @@ public class BankAccountServiceImpl implements BankAccountService {
         Connection connection = ConnectionPool.lockingPool().takeConnection();
         try {
             connection.setAutoCommit(false);
-            BankAccount bankAccountOwner = bankAccountDao.readByAccountIdAndBankId(ownerId, CLEVER_BANK_ID).orElseThrow(() -> new NotFoundEntityException("Account owner is not found"));
+            BankAccount bankAccountOwner = bankAccountDao.readByAccountIdAndBankId(ownerId, CLEVER_BANK_ID)
+                    .orElseThrow(() -> new NotFoundEntityException("Account owner is not found"));
 
-            BankAccount bankAccountUser = bankAccountDao.readByAccountLoginAndBankId(loginUser, bankId).orElseThrow(() -> new NotFoundEntityException("Account of user is not found"));
+            BankAccount bankAccountUser = bankAccountDao.readByAccountLoginAndBankId(loginUser, bankId)
+                    .orElseThrow(() -> new NotFoundEntityException("Account of user is not found"));
 
-            Transaction transaction = Transaction.builder()
-                    .bankAccountFrom(bankAccountOwner)
-                    .bankAccountTo(bankAccountUser)
-                    .sum(amount)
-                    .build();
-
-            transactionDao.create(transaction).orElseThrow(() -> new ServiceException("Transaction is not created"));
+            Transaction transaction = craeteNewTransaction(amount, bankAccountOwner, bankAccountUser);
 
             BigDecimal ownerBalance = bankAccountOwner.getBalance();
             BigDecimal newOwnerBalance = ownerBalance.subtract(amount);
@@ -114,11 +175,14 @@ public class BankAccountServiceImpl implements BankAccountService {
                 connection.rollback();
             }
             owner = optionalOwnerBankAccountUpdated.get();
+
+            Bank bankTo = bankDao.read(bankId).orElseThrow(() -> new NotFoundEntityException("Bank is not found"));
+
+            creatorBill.createBill(transaction.getId(), "Transaction", CLEVER_BANK_NAME, bankTo.getName(),
+                    bankAccountOwner.getId(), bankAccountUser.getId(), amount, transaction.getDateCreate());
+
             connection.commit();
-        } catch (SQLException e) {
-            logger.error("sql error, database access error occurs(setAutoCommit)", e);
-            throw new ServiceException("sql error, database access error occurs(setAutoCommit)");
-        } catch (NotFoundEntityException | ServiceException e) {
+        } catch (SQLException | NotFoundEntityException | ServiceException | IOException | URISyntaxException e) {
             try {
                 connection.rollback();
             } catch (SQLException ex) {
@@ -132,11 +196,23 @@ public class BankAccountServiceImpl implements BankAccountService {
                 connection.close();
             } catch (SQLException e) {
                 logger.error("Database access error occurs connection close", e);
-                throw new ServiceException("Database access error occurs connection close");
             }
         }
         return owner.getBalance();
 
+    }
+
+    private Transaction craeteNewTransaction(BigDecimal amount, BankAccount bankAccountOwner, BankAccount bankAccountUser) {
+        Transaction transaction = Transaction.builder()
+                .bankAccountFrom(bankAccountOwner)
+                .bankAccountTo(bankAccountUser)
+                .sum(amount)
+                .build();
+
+        Transaction createTransaction = transactionDao.create(transaction)
+                .orElseThrow(() -> new ServiceException("Transaction is not created"));
+        return transactionDao.read(createTransaction.getId())
+                .orElseThrow(() -> new ServiceException("Transaction is not read"));
     }
 
     public static BankAccountServiceImpl getInstance() {
@@ -144,8 +220,8 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     private static class Holder {
-        public static final BankAccountServiceImpl INSTANCE = new BankAccountServiceImpl(BankAccountDaoImpl.getInstance(), TransactionDaoImpl.getInstance());
+        public static final BankAccountServiceImpl INSTANCE = new BankAccountServiceImpl(BankAccountDaoImpl.getInstance(),
+                TransactionDaoImpl.getInstance(), BankDaoImpl.getInstance(), CreatorBill.getInstance());
     }
-
 }
 

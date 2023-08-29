@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -15,5 +16,6 @@ public class Transaction implements Entity {
     private BankAccount bankAccountFrom;
     private BankAccount bankAccountTo;
     private BigDecimal sum;
+    private LocalDateTime dateCreate;
 
 }
