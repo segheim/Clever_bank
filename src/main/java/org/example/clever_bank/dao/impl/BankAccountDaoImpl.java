@@ -5,13 +5,10 @@ import org.apache.logging.log4j.Logger;
 import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.AbstractDao;
 import org.example.clever_bank.dao.BankAccountDao;
-import org.example.clever_bank.entity.Account;
-import org.example.clever_bank.entity.Bank;
 import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.exception.DaoException;
 import org.example.clever_bank.util.ConfigurationManager;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -84,7 +81,7 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
             preparedStatement.setLong(2, bankId);
             final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                final BankAccount bankAccount = executeBank(resultSet);
+                final BankAccount bankAccount = executeBankAccount(resultSet);
                 return Optional.of(bankAccount);
             }
         } catch (SQLException e) {
@@ -104,7 +101,7 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
             preparedStatement.setLong(2, bankId);
             final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                final BankAccount bankAccount = executeBank(resultSet);
+                final BankAccount bankAccount = executeBankAccount(resultSet);
                 return Optional.of(bankAccount);
             }
         } catch (SQLException e) {
@@ -114,7 +111,7 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
         return readBankAccount;
     }
 
-    private BankAccount executeBank(ResultSet resultSet) throws SQLException {
+    private BankAccount executeBankAccount(ResultSet resultSet) throws SQLException {
         return BankAccount.builder()
                 .id(resultSet.getLong(ConfigurationManager.getProperty("table.id")))
                 .balance(resultSet.getBigDecimal(ConfigurationManager.getProperty("table.balance")))

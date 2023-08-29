@@ -6,21 +6,33 @@ import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.AbstractDao;
 import org.example.clever_bank.dao.TransactionDao;
 import org.example.clever_bank.entity.Account;
-import org.example.clever_bank.entity.Bank;
+import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.exception.DaoException;
 import org.example.clever_bank.util.ConfigurationManager;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class TransactionDaoImpl extends AbstractDao<Transaction> implements TransactionDao<Transaction> {
 
     private static final Logger logger = LogManager.getLogger(TransactionDaoImpl.class);
-    public static final String INSERT_NEW_TRANSACTION = "insert into transactions (bank_account_id_from, bank_account_id_to, sum) values (?, ?, ?)";
 
-    public TransactionDaoImpl(ConnectionPool pool, Logger log) {
+    public static final String INSERT_NEW_TRANSACTION = "insert into transactions (bank_account_id_from, bank_account_id_to, sum) values (?, ?, ?)";
+    public static final String SELECT_ALL_TRANSACTIONS = "select t.id as id, t.sum as sum, ba1.id as owner_ba_id, ba1.balance as owner_ba_balance," +
+            " ba2.id as user_ba_id, ba2.balance as user_ba_balance, a1.id as owner_account_id, a1.login as owner_account_login," +
+            " a2.id as user_account_id, a2.login as user_account_login from transactions t join bank_accounts ba1" +
+            " on ba1.id=t.bank_account_id_from join bank_accounts ba2 on ba2.id=t.bank_account_id_to join accounts a1" +
+            " on ba1.account_id = a1.id join accounts a2 on ba2.account_id = a2.id";
+    public static final String SELECT_TRANSACTION_BY_ID = "select t.id as id, t.sum as sum, ba1.id as owner_ba_id, ba1.balance as owner_ba_balance," +
+            " ba2.id as user_ba_id, ba2.balance as user_ba_balance, a1.id as owner_account_id, a1.login as owner_account_login," +
+            " a2.id as user_account_id, a2.login as user_account_login from transactions t join bank_accounts ba1" +
+            " on ba1.id=t.bank_account_id_from join bank_accounts ba2 on ba2.id=t.bank_account_id_to join accounts a1" +
+            " on ba1.account_id = a1.id join accounts a2 on ba2.account_id = a2.id where t.id=?";
+
+    private TransactionDaoImpl(ConnectionPool pool, Logger log) {
         super(pool, log);
     }
 
@@ -51,12 +63,39 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
 
     @Override
     public Optional<Transaction> read(Long id) throws DaoException {
-        return Optional.empty();
+        logger.trace("start read transaction");
+        Optional<Transaction> readTransaction = Optional.empty();
+        try (final Connection connection = pool.takeConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TRANSACTION_BY_ID)) {
+            preparedStatement.setLong(1, id);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                Transaction transaction = executeTransaction(resultSet);
+                return Optional.of(transaction);
+            }
+        } catch (SQLException e) {
+            logger.error("sql error, could not find transaction", e);
+            throw new DaoException("Transaction is not read", e);
+        }
+        return readTransaction;
     }
 
     @Override
     public List<Transaction> readAll() {
-        return null;
+        logger.trace("start read all transactions");
+        List<Transaction> transactions = new ArrayList<>();
+        try (final Connection connection = pool.takeConnection();
+             final Statement statement = connection.createStatement();
+             final ResultSet resultSet = statement.executeQuery(SELECT_ALL_TRANSACTIONS)) {
+            while (resultSet.next()) {
+                Transaction transaction = executeTransaction(resultSet);
+                transactions.add(transaction);
+            }
+        } catch (SQLException e) {
+            logger.error("sql error, could not found transactions", e);
+            throw new DaoException("Transaction is not read", e);
+        }
+        return transactions;
     }
 
     @Override
@@ -69,15 +108,31 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
         return false;
     }
 
-//    private Transaction executeTransaction(ResultSet resultSet) throws SQLException {
-//        return new Transaction(resultSet.getLong(ConfigurationManager.getProperty("table.id")),
-//                resultSet.getLong(ConfigurationManager.getProperty("table.bank_account_id_from")),
-//                resultSet.getLong(ConfigurationManager.getProperty("table.bank_account_id_to")),
-//                resultSet.getBigDecimal(ConfigurationManager.getProperty("table:sum")));
-//    }
+    private Transaction executeTransaction(ResultSet resultSet) throws SQLException {
+        return Transaction.builder()
+                .id(resultSet.getLong(ConfigurationManager.getProperty("table.id")))
+                .bankAccountFrom(BankAccount.builder()
+                        .id(resultSet.getLong(ConfigurationManager.getProperty("table.owner_ba_id")))
+                        .account(Account.builder()
+                                .id(resultSet.getLong(ConfigurationManager.getProperty("table.owner_account_id")))
+                                .login(resultSet.getString(ConfigurationManager.getProperty("table.owner_account_login")))
+                                .build())
+                        .balance(resultSet.getBigDecimal(ConfigurationManager.getProperty("table.owner_ba_balance")))
+                        .build())
+                .bankAccountTo(BankAccount.builder()
+                        .id(resultSet.getLong(ConfigurationManager.getProperty("table.user_ba_id")))
+                        .account(Account.builder()
+                                .id(resultSet.getLong(ConfigurationManager.getProperty("table.user_account_id")))
+                                .login(resultSet.getString(ConfigurationManager.getProperty("table.user_account_login")))
+                                .build())
+                        .balance(resultSet.getBigDecimal(ConfigurationManager.getProperty("table.user_ba_balance")))
+                        .build())
+                .sum(resultSet.getBigDecimal(ConfigurationManager.getProperty("table.sum")))
+                .build();
+    }
 
     public static TransactionDaoImpl getInstance() {
-        return TransactionDaoImpl.Holder.INSTANCE;
+        return Holder.INSTANCE;
     }
 
     private static class Holder {

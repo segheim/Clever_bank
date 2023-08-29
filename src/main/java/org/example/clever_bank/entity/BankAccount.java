@@ -4,14 +4,13 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Data
 @Builder
 public class BankAccount implements Entity{
 
     private Long id;
-    private List<Account> accounts;
+    private Account account;
     private BigDecimal balance;
 
 }

@@ -25,7 +25,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
     public static final String UPDATE_ACCOUNT = "update accounts set login=?, password=? where id=?";
     public static final String DELETE_ACCOUNT = "delete from accounts where id=?";
 
-    public AccountDaoImpl(ConnectionPool pool, Logger log) {
+    private AccountDaoImpl(ConnectionPool pool, Logger log) {
         super(pool, log);
     }
 

@@ -26,3 +26,11 @@ table:
   bank_account_id_from: bank_account_id_from
   bank_account_id_to: bank_account_id_to
   sum: sum
+  owner_ba_id: owner_ba_id
+  owner_ba_balance: owner_ba_balance
+  user_ba_id: user_ba_id
+  user_ba_balance: user_ba_balance
+  owner_account_id: owner_account_id
+  owner_account_login: owner_account_login
+  user_account_id: user_account_id
+  user_account_login: user_account_login

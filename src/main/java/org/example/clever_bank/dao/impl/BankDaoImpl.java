@@ -24,7 +24,7 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao<Bank> {
     public static final String UPDATE_BANK = "update banks set name=? where id=?";
     public static final String DELETE_BANK_BY_ID = "delete from banks where id=?";
 
-    public BankDaoImpl(ConnectionPool pool, Logger log) {
+    private BankDaoImpl(ConnectionPool pool, Logger log) {
         super(pool, log);
     }
 

@@ -41,9 +41,10 @@ public class Main {
 //        TransactionDaoImpl.getInstance().create(Transaction.builder().bankAccountFrom(new BankAccount(1L, null, null, null)).build())
 //
 //        Menu menu = new Menu();
-        System.out.println(BankActivityMenu.getInstance().replenishmentAccount(1L));
+//        System.out.println(BankActivityMenu.getInstance().replenishmentAccount(1L));
 //
-//        System.out.println(BankAccountServiceImpl.getInstance().transferMoney(1l, 1l, "no", BigDecimal.valueOf(50)));
+//        System.out.println(BankAccountServiceImpl.getInstance().transferMoney(1l, 1l, "no", BigDecimal.valueOf(20)));
+        System.out.println(TransactionDaoImpl.getInstance().read(2L));
     }
 
 }

@@ -4,7 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.impl.BankAccountDaoImpl;
+import org.example.clever_bank.dao.impl.TransactionDaoImpl;
 import org.example.clever_bank.entity.BankAccount;
+import org.example.clever_bank.entity.Transaction;
+import org.example.clever_bank.exception.DaoException;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
 import org.example.clever_bank.service.BankAccountService;
@@ -22,9 +25,11 @@ public class BankAccountServiceImpl implements BankAccountService {
     public static final Long CLEVER_BANK_ID = 1L;
 
     private final BankAccountDaoImpl bankAccountDao;
+    private final TransactionDaoImpl transactionDao;
 
-    public BankAccountServiceImpl(BankAccountDaoImpl bankAccountDaoImpl) {
+    public BankAccountServiceImpl(BankAccountDaoImpl bankAccountDaoImpl, TransactionDaoImpl transactionDao) {
         this.bankAccountDao = bankAccountDaoImpl;
+        this.transactionDao = transactionDao;
     }
 
     @Override
@@ -85,6 +90,14 @@ public class BankAccountServiceImpl implements BankAccountService {
 
             BankAccount bankAccountUser = bankAccountDao.readByAccountLoginAndBankId(loginUser, bankId).orElseThrow(() -> new NotFoundEntityException("Account of user is not found"));
 
+            Transaction transaction = Transaction.builder()
+                    .bankAccountFrom(bankAccountOwner)
+                    .bankAccountTo(bankAccountUser)
+                    .sum(amount)
+                    .build();
+
+            transactionDao.create(transaction).orElseThrow(() -> new ServiceException("Transaction is not created"));
+
             BigDecimal ownerBalance = bankAccountOwner.getBalance();
             BigDecimal newOwnerBalance = ownerBalance.subtract(amount);
             if (newOwnerBalance.compareTo(BigDecimal.ZERO) < 0) {
@@ -126,13 +139,12 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     }
 
-
     public static BankAccountServiceImpl getInstance() {
         return Holder.INSTANCE;
     }
 
     private static class Holder {
-        public static final BankAccountServiceImpl INSTANCE = new BankAccountServiceImpl(BankAccountDaoImpl.getInstance());
+        public static final BankAccountServiceImpl INSTANCE = new BankAccountServiceImpl(BankAccountDaoImpl.getInstance(), TransactionDaoImpl.getInstance());
     }
 
 }
