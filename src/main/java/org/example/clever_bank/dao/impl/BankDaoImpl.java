@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class BankDaoImpl extends AbstractDao<Bank> implements BankDao<Bank> {
+public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
 
     private static final Logger logger = LogManager.getLogger(BankDaoImpl.class);
 

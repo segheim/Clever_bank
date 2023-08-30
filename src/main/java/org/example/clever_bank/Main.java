@@ -3,6 +3,7 @@ package org.example.clever_bank;
 import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.BankDao;
 import org.example.clever_bank.dao.impl.AccountDaoImpl;
+import org.example.clever_bank.dao.impl.BankAccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankDaoImpl;
 import org.example.clever_bank.dao.impl.TransactionDaoImpl;
 import org.example.clever_bank.entity.Account;
@@ -30,18 +31,15 @@ public class Main {
 //        System.out.println(ConfigurationManager.getProperty("db.url"));
 
         ConnectionPool.lockingPool().init();
-//        Optional cleverBank = BankDaoImpl.getInstance().create(new Bank(null, "bet-bank"));
-//        System.out.println(BankDaoImpl.getInstance().read(1L).get());
-//        List<Bank> banks = BankDaoImpl.getInstance().readAll();
-//        System.out.println(BankDaoImpl.getInstance().update(Bank.builder().id(2L).name("good_bank").build()));
-//        System.out.println(BankDaoImpl.getInstance().delete(2L));
-//        System.out.println(banks);
+        System.out.println(BankAccountDaoImpl.getInstance().update(BankAccount.builder()
+                        .id(16L)
+                        .account(Account.builder().id(5L).build())
+                        .balance(BigDecimal.ONE)
 
-//        System.out.println(AccountDaoImpl.getInstance().create(new Account(null, "so", "3")).get());
-//        System.out.println(AccountDaoImpl.getInstance().read(2L));
-//        System.out.println(AccountDaoImpl.getInstance().update(new Account(2L, "No", "2")));
-//        System.out.println(AccountDaoImpl.getInstance().delete(3L));
-//        TransactionDaoImpl.getInstance().create(Transaction.builder().bankAccountFrom(new BankAccount(1L, null, null, null)).build())
+                .build()));
+//        List<BankAccount> bankAccounts = BankAccountDaoImpl.getInstance().readAll();
+//        bankAccounts.stream().forEach(System.out::println);
+
 //
 //        Menu menu = new Menu();
 //        menu.getMenu();
@@ -58,7 +56,7 @@ public class Main {
 //        }
 //        System.out.println(BankAccountServiceImpl.getInstance().replenishmentAccount(1L, BigDecimal.valueOf(300)));
 
-        System.out.println(BankAccountServiceImpl.getInstance().withdrawal(1L, BigDecimal.valueOf(300)));
+//        System.out.println(BankAccountServiceImpl.getInstance().withdrawal(1L, BigDecimal.valueOf(300)));
     }
 
 }

@@ -148,7 +148,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 
     private Account executeAccount(ResultSet resultSet) throws SQLException {
         return new Account(resultSet.getLong(ConfigurationManager.getProperty("table.id")),
-            resultSet.getString(ConfigurationManager.getProperty("table.login")),
+                resultSet.getString(ConfigurationManager.getProperty("table.login")),
                 resultSet.getString(ConfigurationManager.getProperty("table.pass")));
     }
 

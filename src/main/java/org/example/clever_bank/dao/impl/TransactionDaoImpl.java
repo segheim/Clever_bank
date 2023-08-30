@@ -100,12 +100,12 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
 
     @Override
     public Optional<Transaction> update(Transaction entity) {
-        return Optional.empty();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean delete(Long id) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     private Transaction executeTransaction(ResultSet resultSet) throws SQLException {
