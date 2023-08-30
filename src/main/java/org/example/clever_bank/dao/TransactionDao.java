@@ -1,4 +1,4 @@
 package org.example.clever_bank.dao;
 
-public interface TransactionDao<Transaction> {
+public interface TransactionDao {
 }

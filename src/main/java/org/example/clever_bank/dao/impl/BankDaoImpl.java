@@ -23,6 +23,7 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
     public static final String SELECT_ALL_BANKS = "select id as id, name as name from banks";
     public static final String UPDATE_BANK = "update banks set name=? where id=?";
     public static final String DELETE_BANK_BY_ID = "delete from banks where id=?";
+    public static final String SELECT_BANK_BY_NAME = "select id as id, name as name from banks where name=?";
 
     private BankDaoImpl(ConnectionPool pool, Logger log) {
         super(pool, log);
@@ -48,7 +49,6 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
             }
         } catch (SQLException e) {
             logger.error("sql error, could not create bank", e);
-            throw new DaoException("Bank is not created", e);
         }
         return createdBank;
     }
@@ -67,7 +67,6 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
             }
         } catch (SQLException e) {
             logger.error("sql error, could not get bank", e);
-            throw new DaoException("Bank is not read", e);
         }
         return readBank;
     }
@@ -85,7 +84,6 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
             }
         } catch (SQLException e) {
             logger.error("sql error, could not get banks", e);
-            throw new DaoException("Bank is not read", e);
         }
         return banks;
     }
@@ -104,7 +102,6 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
             }
         } catch (SQLException e) {
             logger.error("sql error, could not update bank", e);
-            throw new DaoException("Bank is not updated", e);
         }
         return updatedBank;
     }
@@ -122,9 +119,26 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
             }
         } catch (SQLException e) {
             logger.error("sql error, could not delete bank", e);
-            throw new DaoException("Bank is not deleted", e);
         }
         return deleteBank;
+    }
+
+    @Override
+    public Optional<Bank> readByName(String name) {
+        logger.trace("start read by name bank");
+        Optional<Bank> readBank = Optional.empty();
+        try (final Connection connection = pool.takeConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BANK_BY_NAME)) {
+            preparedStatement.setString(1, name);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                final Bank bank = executeBank(resultSet);
+                return Optional.of(bank);
+            }
+        } catch (SQLException e) {
+            logger.error("sql error, could not get bank", e);
+        }
+        return readBank;
     }
 
     private Bank executeBank(ResultSet resultSet) throws SQLException {

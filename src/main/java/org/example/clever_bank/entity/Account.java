@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class Account implements Entity{
+public class Account implements Entity {
 
     private Long id;
     private String login;

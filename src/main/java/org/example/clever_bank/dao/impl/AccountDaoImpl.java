@@ -11,6 +11,7 @@ import org.example.clever_bank.util.ConfigurationManager;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
     }
 
     @Override
-    public Optional<Account> create(Account entity) throws DaoException {
+    public Optional<Account> create(Account entity){
         logger.trace("start create account");
         Optional<Account> createdAccount = Optional.empty();
         try (final Connection connection = pool.takeConnection();
@@ -47,13 +48,12 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
             }
         } catch (SQLException e) {
             logger.error("sql error, could not create account", e);
-            throw new DaoException("Account not create", e);
         }
         return createdAccount;
     }
 
     @Override
-    public Optional<Account> read(Long id) throws DaoException {
+    public Optional<Account> read(Long id){
         logger.trace("start read account");
         Optional<Account> readAccount = Optional.empty();
         try (final Connection connection = pool.takeConnection();
@@ -66,7 +66,6 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
             }
         } catch (SQLException e) {
             logger.error("sql error, could not find account", e);
-            throw new DaoException("Account is not read", e);
         }
         return readAccount;
     }
@@ -85,7 +84,6 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
             }
         } catch (SQLException e) {
             logger.error("sql error, could not find account", e);
-            throw new DaoException("Account is not read", e);
         }
         return readAccount;
     }
@@ -103,7 +101,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
             }
         } catch (SQLException e) {
             logger.error("sql error, could not found accounts", e);
-            throw new DaoException("Account is not read", e);
+            return Collections.emptyList();
         }
         return accounts;
     }
@@ -123,7 +121,6 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
             }
         } catch (SQLException e) {
             logger.error("sql error, could not update account", e);
-            throw new DaoException("Account is not updated", e);
         }
         return updatedAccount;
     }
@@ -141,7 +138,6 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
             }
         } catch (SQLException e) {
             logger.error("sql error, could not delete account", e);
-            throw new DaoException("Account is not deleted", e);
         }
         return deleteAccount;
     }

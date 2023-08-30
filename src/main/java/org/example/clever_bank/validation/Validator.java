@@ -1,5 +1,8 @@
 package org.example.clever_bank.validation;
 
+import org.example.clever_bank.exception.ServiceException;
+
+import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +29,7 @@ public class Validator {
         return matcherLogin.matches();
     }
 
-    public boolean validatePassword(String login, String password) {
+    public boolean validatePassword(String password) {
         if (password == null) {
             return false;
         }
@@ -35,5 +38,10 @@ public class Validator {
         Matcher matcherPassword = patternPassword.matcher(password);
 
         return matcherPassword.matches();
+    }
+
+    public boolean validateAmount(BigDecimal amount) {
+        return amount.compareTo(BigDecimal.ZERO) >= 0 ? true : false;
+
     }
 }

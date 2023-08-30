@@ -4,10 +4,10 @@ import org.example.clever_bank.entity.Account;
 import org.example.clever_bank.exception.AuthenticateException;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
+import org.example.clever_bank.exception.ValidationException;
 import org.example.clever_bank.service.AccountService;
 import org.example.clever_bank.service.impl.AccountServiceImpl;
 
-import java.util.Optional;
 import java.util.Scanner;
 
 public class AuthMenu {
@@ -20,35 +20,38 @@ public class AuthMenu {
         this.accountService = accountService;
     }
 
-    public Account signIn() throws AuthenticateException {
+    public String signIn() throws AuthenticateException {
         System.out.println("Enter login: ");
         String login = scanner.next();
         scanner.nextLine();
         System.out.println("Enter password: ");
         String password = scanner.next();
         scanner.nextLine();
-        Account account;
         try {
-            account = accountService.authenticate(login, password);
-        } catch (ServiceException | NotFoundEntityException e) {
-            throw new AuthenticateException(String.format("Authentication is failed. %s", e.getMessage()), e);
+            accountService.authenticate(login, password);
+        } catch (ServiceException | NotFoundEntityException | ValidationException e) {
+            return String.format("Authentication is failed. %s", e.getMessage());
         }
-        return account;
+        return "Welcome!";
     }
 
-    public boolean signUp() {
+    public String signUp() {
         System.out.println("Enter login: ");
         String login = scanner.next();
         scanner.nextLine();
         System.out.println("Enter password: ");
         String password = scanner.next();
         scanner.nextLine();
-        return accountService.add(Account.builder()
-                .login(login)
-                .password(password)
-                .build());
+        try {
+            accountService.add(Account.builder()
+                    .login(login)
+                    .password(password)
+                    .build());
+            return "You are registered!";
+        } catch (ValidationException e) {
+            return String.format("Sign Up is failed. %s", e.getMessage());
+        }
     }
-
 
     public static AuthMenu getInstance() {
         return Holder.INSTANCE;

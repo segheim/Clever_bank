@@ -11,8 +11,9 @@ import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
-import org.example.clever_bank.pdf.CreatorBill;
+import org.example.clever_bank.util.CreatorBill;
 import org.example.clever_bank.service.BankAccountService;
+import org.example.clever_bank.validation.Validator;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -42,28 +43,38 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public boolean add(BankAccount bankAccount) {
-        return false;
+    public BankAccount add(BankAccount bankAccount) {
+        if (Validator.getInstance().validateAmount(bankAccount.getBalance())) {
+            throw new ServiceException("Enter correct amount of money");
+        }
+        return bankAccountDao.create(bankAccount).orElseThrow(() -> new ServiceException("Bank account is not created"));
     }
 
     @Override
     public BankAccount findById(Long id) {
-        return null;
+        return bankAccountDao.read(id).orElseThrow(() -> new ServiceException("Bank account is not found"));
     }
 
     @Override
     public List<BankAccount> findAll() {
-        return null;
+        List<BankAccount> bankAccounts = bankAccountDao.readAll();
+        if (bankAccounts.isEmpty()) {
+            throw new ServiceException("Empty");
+        }
+        return bankAccounts;
     }
 
     @Override
-    public boolean update(BankAccount bankAccount) {
-        return false;
+    public BankAccount update(BankAccount bankAccount) {
+        if (Validator.getInstance().validateAmount(bankAccount.getBalance())) {
+            throw new ServiceException("Enter correct amount of money");
+        }
+        return bankAccountDao.update(bankAccount).orElseThrow(() -> new ServiceException("Bank account is not updated"));
     }
 
     @Override
     public boolean remove(Long id) {
-        return false;
+        return bankAccountDao.delete(id);
     }
 
     @Override
@@ -77,7 +88,7 @@ public class BankAccountServiceImpl implements BankAccountService {
             BigDecimal balance = bankAccount.getBalance();
             bankAccount.setBalance(balance.add(amount));
             updatedBankAccount = bankAccountDao.update(bankAccount)
-                    .orElseThrow(() -> new ServiceException("Operation is failed"));
+                    .orElseThrow(() -> new ServiceException("Operation is failed. Bank account is not updated"));
 
             Transaction transaction = craeteNewTransaction(amount, bankAccount, bankAccount);
             creatorBill.createBill(transaction.getId(), "Replenishment", CLEVER_BANK_NAME, CLEVER_BANK_NAME,
@@ -118,7 +129,7 @@ public class BankAccountServiceImpl implements BankAccountService {
             }
             bankAccount.setBalance(result);
             updatedBankAccount = bankAccountDao.update(bankAccount)
-                    .orElseThrow(() -> new ServiceException("Operation is failed"));
+                    .orElseThrow(() -> new ServiceException("Operation is failed.Bank account is not updated"));
 
             Transaction transaction = craeteNewTransaction(amount, bankAccount, bankAccount);
             creatorBill.createBill(transaction.getId(), "Withdrawal", CLEVER_BANK_NAME, CLEVER_BANK_NAME,
@@ -152,10 +163,10 @@ public class BankAccountServiceImpl implements BankAccountService {
         try {
             connection.setAutoCommit(false);
             BankAccount bankAccountOwner = bankAccountDao.readByAccountIdAndBankId(ownerId, CLEVER_BANK_ID)
-                    .orElseThrow(() -> new NotFoundEntityException("Account owner is not found"));
+                    .orElseThrow(() -> new NotFoundEntityException("Bank Account owner is not found"));
 
             BankAccount bankAccountUser = bankAccountDao.readByAccountLoginAndBankId(loginUser, bankId)
-                    .orElseThrow(() -> new NotFoundEntityException("Account of user is not found"));
+                    .orElseThrow(() -> new NotFoundEntityException("Bank Account of user is not found"));
 
             Transaction transaction = craeteNewTransaction(amount, bankAccountOwner, bankAccountUser);
 

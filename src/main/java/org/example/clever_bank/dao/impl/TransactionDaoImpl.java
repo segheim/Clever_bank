@@ -8,15 +8,15 @@ import org.example.clever_bank.dao.TransactionDao;
 import org.example.clever_bank.entity.Account;
 import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.entity.Transaction;
-import org.example.clever_bank.exception.DaoException;
 import org.example.clever_bank.util.ConfigurationManager;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class TransactionDaoImpl extends AbstractDao<Transaction> implements TransactionDao<Transaction> {
+public class TransactionDaoImpl extends AbstractDao<Transaction> implements TransactionDao {
 
     private static final Logger logger = LogManager.getLogger(TransactionDaoImpl.class);
 
@@ -37,7 +37,7 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
     }
 
     @Override
-    public Optional<Transaction> create(Transaction entity) throws DaoException {
+    public Optional<Transaction> create(Transaction entity) {
         logger.trace("start create transaction");
         Optional<Transaction> createdTransaction = Optional.empty();
         try (final Connection connection = pool.takeConnection();
@@ -56,13 +56,12 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
             }
         } catch (SQLException e) {
             logger.error("sql error, could not create transaction", e);
-            throw new DaoException("Transaction is not created", e);
         }
         return createdTransaction;
     }
 
     @Override
-    public Optional<Transaction> read(Long id) throws DaoException {
+    public Optional<Transaction> read(Long id) {
         logger.trace("start read transaction");
         Optional<Transaction> readTransaction = Optional.empty();
         try (final Connection connection = pool.takeConnection();
@@ -75,7 +74,6 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
             }
         } catch (SQLException e) {
             logger.error("sql error, could not find transaction", e);
-            throw new DaoException("Transaction is not read", e);
         }
         return readTransaction;
     }
@@ -93,7 +91,7 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
             }
         } catch (SQLException e) {
             logger.error("sql error, could not found transactions", e);
-            throw new DaoException("Transaction is not read", e);
+            return Collections.emptyList();
         }
         return transactions;
     }

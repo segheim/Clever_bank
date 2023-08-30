@@ -61,7 +61,6 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
             }
         } catch (SQLException e) {
             logger.error("sql error, could not create bank account", e);
-            throw new DaoException("Bank account not create", e);
         }
         return createdBankAccount;
     }
@@ -80,7 +79,6 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
             }
         } catch (SQLException e) {
             logger.error("sql error, could not find bank account", e);
-            throw new DaoException("Bank account is not read", e);
         }
         return readBankAccount;
     }
@@ -98,7 +96,6 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
             }
         } catch (SQLException e) {
             logger.error("sql error, could not found bankAccounts", e);
-            throw new DaoException("Bank account is not read", e);
         }
         return bankAccounts;
     }
@@ -117,7 +114,6 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
             }
         } catch (SQLException e) {
             logger.error("sql error, could not update account", e);
-            throw new DaoException("Bank account is not updated", e);
         }
         return updatedBankAccount;
     }
@@ -135,7 +131,6 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
             }
         } catch (SQLException e) {
             logger.error("sql error, could not delete bank account", e);
-            throw new DaoException("Bank account is not deleted", e);
         }
         return deleteBankAccount;
     }
@@ -155,7 +150,6 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
             }
         } catch (SQLException e) {
             logger.error("sql error, could not get bank account", e);
-            throw new DaoException("Bank Account is not read", e);
         }
         return readBankAccount;
     }
@@ -175,7 +169,6 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
             }
         } catch (SQLException e) {
             logger.error("sql error, could not get bank account", e);
-            throw new DaoException("Bank Account is not read", e);
         }
         return readBankAccount;
     }
