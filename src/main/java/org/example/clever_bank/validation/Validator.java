@@ -25,7 +25,6 @@ public class Validator {
         }
         Pattern patternLogin = Pattern.compile("[a-zA-Z0-9.\\\\-_\\\\+]{3,60}");
         Matcher matcherLogin = patternLogin.matcher(login);
-
         return matcherLogin.matches();
     }
 
@@ -33,7 +32,6 @@ public class Validator {
         if (password == null) {
             return false;
         }
-
         Pattern patternPassword = Pattern.compile("^(?=\\S+$).{3,60}$");
         Matcher matcherPassword = patternPassword.matcher(password);
 
@@ -43,5 +41,14 @@ public class Validator {
     public boolean validateAmount(BigDecimal amount) {
         return amount.compareTo(BigDecimal.ZERO) >= 0 ? true : false;
 
+    }
+
+    public boolean validateType(String password) {
+        if (password == null) {
+            return false;
+        }
+        Pattern patternPassword = Pattern.compile("[a-zA-Z0-9]+.{3,40}");
+        Matcher matcherPassword = patternPassword.matcher(password);
+        return matcherPassword.matches();
     }
 }

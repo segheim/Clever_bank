@@ -3,6 +3,7 @@ package org.example.clever_bank.service.impl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.clever_bank.connection.ConnectionPool;
+import org.example.clever_bank.dao.impl.AccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankAccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankDaoImpl;
 import org.example.clever_bank.dao.impl.TransactionDaoImpl;
@@ -33,12 +34,14 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     private final BankAccountDaoImpl bankAccountDao;
     private final TransactionDaoImpl transactionDao;
+    private final AccountDaoImpl accountDao;
     private final BankDaoImpl bankDao;
     private final CreatorBill creatorBill;
 
-    public BankAccountServiceImpl(BankAccountDaoImpl bankAccountDaoImpl, TransactionDaoImpl transactionDao, BankDaoImpl bankDao, CreatorBill creatorBill) {
+    public BankAccountServiceImpl(BankAccountDaoImpl bankAccountDaoImpl, TransactionDaoImpl transactionDao, AccountDaoImpl accountDao, BankDaoImpl bankDao, CreatorBill creatorBill) {
         this.bankAccountDao = bankAccountDaoImpl;
         this.transactionDao = transactionDao;
+        this.accountDao = accountDao;
         this.bankDao = bankDao;
         this.creatorBill = creatorBill;
     }
@@ -48,6 +51,8 @@ public class BankAccountServiceImpl implements BankAccountService {
         if (!Validator.getInstance().validateAmount(bankAccount.getBalance())) {
             throw new ServiceException("Enter correct amount of money");
         }
+        accountDao.read(bankAccount.getAccount().getId())
+                .orElseThrow(() -> new NotFoundEntityException(String.format("Account with id=%d is not present", bankAccount.getAccount().getId())));
         BankAccount createBankAccount;
         Connection connection = ConnectionPool.lockingPool().takeConnection();
         try {
@@ -264,7 +269,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     private static class Holder {
         public static final BankAccountServiceImpl INSTANCE = new BankAccountServiceImpl(BankAccountDaoImpl.getInstance(),
-                TransactionDaoImpl.getInstance(), BankDaoImpl.getInstance(), CreatorBill.getInstance());
+                TransactionDaoImpl.getInstance(), AccountDaoImpl.getInstance(), BankDaoImpl.getInstance(), CreatorBill.getInstance());
     }
 }
 

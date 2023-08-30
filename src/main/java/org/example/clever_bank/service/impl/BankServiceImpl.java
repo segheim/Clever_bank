@@ -23,7 +23,7 @@ public class BankServiceImpl implements BankService {
         if (Validator.getInstance().validateLogin(bank.getName())) {
             throw new ValidationException("Bank name is not valid");
         }
-        bankDao.readByName(bank.getName()).orElseThrow(() -> new NotFoundEntityException(String.format("Account with name=%s already exist", bank.getName())));
+        bankDao.readByName(bank.getName()).orElseThrow(() -> new NotFoundEntityException(String.format("Bank with name=%s is not present", bank.getName())));
         return bankDao.create(bank).orElseThrow(() -> new ServiceException("Bank is not created"));
     }
 
