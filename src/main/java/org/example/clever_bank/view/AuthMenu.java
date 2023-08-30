@@ -8,6 +8,7 @@ import org.example.clever_bank.exception.ValidationException;
 import org.example.clever_bank.service.AccountService;
 import org.example.clever_bank.service.impl.AccountServiceImpl;
 
+import java.util.Optional;
 import java.util.Scanner;
 
 public class AuthMenu {
@@ -20,22 +21,23 @@ public class AuthMenu {
         this.accountService = accountService;
     }
 
-    public String signIn() throws AuthenticateException {
+    public Optional<Account> signIn() throws AuthenticateException {
         System.out.println("Enter login: ");
         String login = scanner.next();
         scanner.nextLine();
         System.out.println("Enter password: ");
         String password = scanner.next();
         scanner.nextLine();
+        Account authenticate;
         try {
-            accountService.authenticate(login, password);
+            authenticate = accountService.authenticate(login, password);
         } catch (ServiceException | NotFoundEntityException | ValidationException e) {
-            return String.format("Authentication is failed. %s", e.getMessage());
+            return Optional.empty();
         }
-        return "Welcome!";
+        return Optional.of(authenticate);
     }
 
-    public String signUp() {
+    public Optional<Account> signUp() {
         System.out.println("Enter login: ");
         String login = scanner.next();
         scanner.nextLine();
@@ -43,13 +45,12 @@ public class AuthMenu {
         String password = scanner.next();
         scanner.nextLine();
         try {
-            accountService.add(Account.builder()
-                    .login(login)
-                    .password(password)
-                    .build());
-            return "You are registered!";
+            return Optional.of(accountService.add(Account.builder()
+                                    .login(login)
+                                    .password(password)
+                                    .build()));
         } catch (ValidationException e) {
-            return String.format("Sign Up is failed. %s", e.getMessage());
+            return Optional.empty();
         }
     }
 

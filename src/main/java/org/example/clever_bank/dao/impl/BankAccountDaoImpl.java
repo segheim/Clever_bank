@@ -34,6 +34,7 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
             " join banks_bank_accounts bba on ba.id = bba.bank_account_id join banks b on b.id = bba.bank_id where a.login=? and b.id=?";
     public static final String UPDATE_BANK_ACCOUNT = "update bank_accounts set balance=? where id=?";
     public static final String DELETE_BANK_ACCOUNT = "delete from bank_accounts where id=?";
+    public static final String INSERT_NEW_BANK_BANK_ACCOUNT = "insert into banks_bank_accounts (bank_id, bank_account_id) values (?,?)";
 
     private BankAccountDaoImpl(ConnectionPool pool, Logger log) {
         super(pool, log);
@@ -171,6 +172,24 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
             logger.error("sql error, could not get bank account", e);
         }
         return readBankAccount;
+    }
+
+    @Override
+    public boolean createBankBankAccount(Long bankId, Long bankAccountId) {
+        logger.trace("start create bank - bank account");
+        boolean createdBankBankAccount = false;
+        try (final Connection connection = pool.takeConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_NEW_BANK_BANK_ACCOUNT, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setLong(1, bankId);
+            preparedStatement.setLong(2, bankAccountId);
+            final int numberChangedLines = preparedStatement.executeUpdate();
+            if (numberChangedLines > 0) {
+                createdBankBankAccount = true;
+            }
+        } catch (SQLException e) {
+            logger.error("sql error, could not create bank account", e);
+        }
+        return createdBankBankAccount;
     }
 
     private BankAccount executeBankAccount(ResultSet resultSet) throws SQLException {

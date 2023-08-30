@@ -3,6 +3,7 @@ package org.example.clever_bank.view;
 import org.example.clever_bank.entity.Account;
 import org.example.clever_bank.exception.AuthenticateException;
 
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Menu {
@@ -23,7 +24,7 @@ public class Menu {
             scanner.nextLine();
             switch (choice) {
                 case 1:
-                    if (AuthMenu.getInstance().signUp()) {
+                    if (AuthMenu.getInstance().signUp().isPresent()) {
                         System.out.println("You successfully registered!");
                         break;
                     } else {
@@ -33,13 +34,14 @@ public class Menu {
                 case 2:
                     Account account;
                     try {
-                        account = AuthMenu.getInstance().signIn();
+                        Optional<Account> optionalAccount = AuthMenu.getInstance().signIn();
+                        if (optionalAccount.isEmpty()) {
+                            System.out.println("System error");
+                            continue;
+                        }
+                        account = optionalAccount.get();
                     } catch (AuthenticateException e) {
-                        System.out.println(e.getMessage());
-                        continue;
-                    }
-                    if (account == null) {
-                        System.out.println("System error");
+                        System.out.println(String.format("Authentication is failed. %s", e.getMessage()));
                         continue;
                     }
                     while (true) {

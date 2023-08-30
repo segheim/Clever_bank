@@ -11,8 +11,8 @@ import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
-import org.example.clever_bank.util.CreatorBill;
 import org.example.clever_bank.service.BankAccountService;
+import org.example.clever_bank.util.CreatorBill;
 import org.example.clever_bank.validation.Validator;
 
 import java.io.IOException;
@@ -47,7 +47,37 @@ public class BankAccountServiceImpl implements BankAccountService {
         if (Validator.getInstance().validateAmount(bankAccount.getBalance())) {
             throw new ServiceException("Enter correct amount of money");
         }
-        return bankAccountDao.create(bankAccount).orElseThrow(() -> new ServiceException("Bank account is not created"));
+        BankAccount createBankAccount;
+        Connection connection = ConnectionPool.lockingPool().takeConnection();
+        try {
+            connection.setAutoCommit(false);
+            List<Bank> banks = bankAccount.getBanks();
+            for (Bank bank : banks) {
+                boolean bankBankAccount = bankAccountDao.createBankBankAccount(bank.getId(), bankAccount.getId());
+                if (!bankBankAccount) {
+                    connection.rollback();
+                }
+            }
+            createBankAccount = bankAccountDao.create(bankAccount)
+                    .orElseThrow(() -> new ServiceException("Bank account is not created"));
+            connection.commit();
+        } catch (SQLException | NotFoundEntityException | ServiceException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                logger.error("Database access error occurs connection rollback", ex);
+                throw new ServiceException("Database access error occurs connection rollback");
+            }
+            throw new ServiceException(String.format("could not create bank account. %s", e.getMessage()));
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+                connection.close();
+            } catch (SQLException e) {
+                logger.error("Database access error occurs connection close", e);
+            }
+        }
+        return createBankAccount;
     }
 
     @Override

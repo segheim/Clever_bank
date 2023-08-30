@@ -3,20 +3,24 @@ package org.example.clever_bank;
 import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.impl.BankAccountDaoImpl;
 import org.example.clever_bank.entity.Account;
+import org.example.clever_bank.entity.Bank;
 import org.example.clever_bank.entity.BankAccount;
+import org.example.clever_bank.exception.ValidationException;
+import org.example.clever_bank.service.BankAccountService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ValidationException {
 
 //        System.out.println(ConfigurationManager.getProperty("db.url"));
 
         ConnectionPool.lockingPool().init();
-        System.out.println(BankAccountDaoImpl.getInstance().update(BankAccount.builder()
-                        .id(16L)
-                        .account(Account.builder().id(5L).build())
+        System.out.println(BankAccountService.getInstance().add(BankAccount.builder()
+                        .banks(List.of(Bank.builder().id(1l).build()))
+                        .account(Account.builder().id(5l).build())
                         .balance(BigDecimal.ONE)
 
                 .build()));
