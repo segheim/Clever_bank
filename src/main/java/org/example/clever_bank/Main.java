@@ -7,6 +7,7 @@ import org.example.clever_bank.entity.Bank;
 import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.exception.ValidationException;
 import org.example.clever_bank.service.BankAccountService;
+import org.example.clever_bank.service.impl.BankAccountServiceImpl;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,12 +19,13 @@ public class Main {
 //        System.out.println(ConfigurationManager.getProperty("db.url"));
 
         ConnectionPool.lockingPool().init();
-        System.out.println(BankAccountService.getInstance().add(BankAccount.builder()
-                        .banks(List.of(Bank.builder().id(1l).build()))
-                        .account(Account.builder().id(5l).build())
-                        .balance(BigDecimal.ONE)
-
-                .build()));
+        BankAccountServiceImpl.getInstance().transferMoney(5l, 3l,"lo", BigDecimal.valueOf(500));
+//        System.out.println(BankAccountServiceImpl.getInstance().add(BankAccount.builder()
+//                        .banks(List.of(Bank.builder().id(1l).build()))
+//                        .account(Account.builder().id(5l).build())
+//                        .balance(BigDecimal.ONE)
+//
+//                .build()));
 //        List<BankAccount> bankAccounts = BankAccountDaoImpl.getInstance().readAll();
 //        bankAccounts.stream().forEach(System.out::println);
 

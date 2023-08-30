@@ -17,5 +17,6 @@ public class Transaction implements Entity {
     private BankAccount bankAccountTo;
     private BigDecimal sum;
     private LocalDateTime dateCreate;
+    private String type;
 
 }

@@ -152,7 +152,6 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
         return Holder.INSTANCE;
     }
 
-
     private static class Holder {
         public static final AccountDaoImpl INSTANCE = new AccountDaoImpl(ConnectionPool.lockingPool(), logger);
     }

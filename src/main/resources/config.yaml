@@ -34,6 +34,7 @@ table:
   user_account_id: user_account_id
   user_account_login: user_account_login
   date_create: date_create
+  type: type
 
 ###################################################
 pdf:
@@ -49,3 +50,8 @@ pdf:
   amount: amount
   path.save: check/bill%s.pdf
 
+#######################################################
+operation:
+  replenishment: Replenishment
+  withdrawal: Withdrawal
+  transaction: Transaction

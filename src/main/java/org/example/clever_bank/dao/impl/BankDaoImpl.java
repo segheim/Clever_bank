@@ -152,7 +152,6 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
     }
 
     private static class Holder {
-        public static final BankDaoImpl INSTANCE = new BankDaoImpl(ConnectionPool.lockingPool(), logger) {
-        };
+        public static final BankDaoImpl INSTANCE = new BankDaoImpl(ConnectionPool.lockingPool(), logger);
     }
 }

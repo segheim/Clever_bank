@@ -12,7 +12,4 @@ public interface BankAccountService extends Service<BankAccount> {
 
     BigDecimal transferMoney(Long ownerId, Long bankId, String loginUser, BigDecimal amount);
 
-    static BankAccountService getInstance() {
-        return BankAccountService.getInstance();
-    }
 }
