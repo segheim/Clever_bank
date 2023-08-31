@@ -8,9 +8,17 @@ import java.util.Scanner;
 
 public class Menu {
 
-    public void getMenu() {
+    private final AuthMenu authMenu;
+    private final BankActivityMenu bankActivityMenu;
+    private final Scanner scanner;
 
-        Scanner scanner = new Scanner(System.in);
+    public Menu(AuthMenu authMenu, BankActivityMenu bankActivityMenu, Scanner scanner) {
+        this.authMenu = authMenu;
+        this.bankActivityMenu = bankActivityMenu;
+        this.scanner = scanner;
+    }
+
+    public void getMenu() {
 
         outer:
         while (true) {
@@ -24,7 +32,7 @@ public class Menu {
             scanner.nextLine();
             switch (choice) {
                 case 1:
-                    if (AuthMenu.getInstance().signUp().isPresent()) {
+                    if (authMenu.signUp().isPresent()) {
                         System.out.println("You successfully registered!");
                         break;
                     } else {
@@ -34,7 +42,7 @@ public class Menu {
                 case 2:
                     Account account;
                     try {
-                        Optional<Account> optionalAccount = AuthMenu.getInstance().signIn();
+                        Optional<Account> optionalAccount = authMenu.signIn();
                         if (optionalAccount.isEmpty()) {
                             System.out.println("System error");
                             continue;
@@ -57,16 +65,16 @@ public class Menu {
                         scanner.nextLine();
                         switch (choice) {
                             case 1:
-                                System.out.println(BankActivityMenu.getInstance().replenishmentAccount(account.getId()));
+                                System.out.println(bankActivityMenu.replenishmentAccount(account.getId()));
                                 break;
                             case 2:
-                                System.out.println(BankActivityMenu.getInstance().withdrawal(account.getId()));
+                                System.out.println(bankActivityMenu.withdrawal(account.getId()));
                                 break;
                             case 3:
-                                System.out.println(BankActivityMenu.getInstance().internalTransfer(account.getId()));
+                                System.out.println(bankActivityMenu.internalTransfer(account.getId()));
                                 break;
                             case 4:
-                                System.out.println(BankActivityMenu.getInstance().externalTransfer(account.getId()));
+                                System.out.println(bankActivityMenu.externalTransfer(account.getId()));
                                 break;
                             case 5:
                                 continue outer;
@@ -83,13 +91,5 @@ public class Menu {
                     System.out.println("Enter correct number of action!");
             }
         }
-    }
-
-    public static Menu getInstance() {
-        return Holder.INSTANCE;
-    }
-
-    private static class Holder {
-        public static final Menu INSTANCE = new Menu();
     }
 }

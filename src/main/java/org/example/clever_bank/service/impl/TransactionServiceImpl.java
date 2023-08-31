@@ -1,26 +1,41 @@
 package org.example.clever_bank.service.impl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.example.clever_bank.connection.ConnectionPool;
+import org.example.clever_bank.dao.impl.AccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankAccountDaoImpl;
 import org.example.clever_bank.dao.impl.TransactionDaoImpl;
-import org.example.clever_bank.entity.Account;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
 import org.example.clever_bank.exception.ValidationException;
 import org.example.clever_bank.service.TransactionService;
+import org.example.clever_bank.service.text.PaperWorker;
+import org.example.clever_bank.service.text.impl.PaperWorkerPdfBox;
 import org.example.clever_bank.validation.Validator;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class TransactionServiceImpl implements TransactionService {
 
+    private static final Logger logger = LogManager.getLogger(TransactionServiceImpl.class);
+
     private final TransactionDaoImpl transactionDao;
     private final BankAccountDaoImpl bankAccountDao;
+    private final AccountDaoImpl accountDao;
+    private final PaperWorker paperWorker;
 
-    private TransactionServiceImpl(TransactionDaoImpl transactionDao, BankAccountDaoImpl bankAccountDao) {
+    private TransactionServiceImpl(TransactionDaoImpl transactionDao, BankAccountDaoImpl bankAccountDao, AccountDaoImpl accountDao, PaperWorker paperWorker) {
         this.transactionDao = transactionDao;
         this.bankAccountDao = bankAccountDao;
+        this.accountDao = accountDao;
+        this.paperWorker = paperWorker;
     }
 
     @Override
@@ -29,7 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new ValidationException("Transaction type is not valid");
         }
         bankAccountDao.read(transaction.getBankAccountFrom().getId())
-                    .orElseThrow(() -> new NotFoundEntityException(String.format("Bank account with id=%d is not present", transaction.getId())));
+                .orElseThrow(() -> new NotFoundEntityException(String.format("Bank account with id=%d is not present", transaction.getId())));
         bankAccountDao.read(transaction.getBankAccountTo().getId())
                 .orElseThrow(() -> new NotFoundEntityException(String.format("Bank account with id=%d is not present", transaction.getId())));
         return transactionDao.create(transaction)
@@ -69,17 +84,34 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void getStatementOfAccount(Account account, LocalDateTime periodFrom, LocalDateTime periodTo) {
-
-    }
-
-    public static TransactionServiceImpl getInstance() {
-        return Holder.INSTANCE;
-    }
-
-    private static class Holder {
-        public static final TransactionServiceImpl INSTANCE = new TransactionServiceImpl(
-                TransactionDaoImpl.getInstance(), BankAccountDaoImpl.getInstance()
-                );
+    public List<Transaction> createStatementOfAccount(Long accountId, LocalDateTime periodFrom, LocalDateTime periodTo) {
+        List<Transaction> transactions;
+        Connection connection = ConnectionPool.lockingPool().takeConnection();
+        try {
+            connection.setAutoCommit(false);
+            accountDao.read(accountId).orElseThrow(() -> new NotFoundEntityException("Account is not found"));
+            transactions = transactionDao.readByPeriodAndAccountId(accountId, periodFrom, periodTo);
+            if (transactions.isEmpty()) {
+                throw new ServiceException("Empty");
+            }
+            paperWorker.createStatement(transactions, periodFrom, periodTo);
+            connection.commit();
+        } catch (SQLException | NotFoundEntityException | IOException | URISyntaxException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                logger.error("Database access error occurs connection rollback", ex);
+                throw new ServiceException("Database access error occurs connection rollback");
+            }
+            throw new ServiceException(String.format("could not transfer money. %s", e.getMessage()));
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+                connection.close();
+            } catch (SQLException e) {
+                logger.error("Database access error occurs connection close", e);
+            }
+        }
+        return transactions;
     }
 }

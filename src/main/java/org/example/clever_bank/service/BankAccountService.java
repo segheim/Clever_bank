@@ -12,4 +12,6 @@ public interface BankAccountService extends Service<BankAccount> {
 
     BigDecimal transferMoney(Long ownerId, Long bankId, String loginUser, BigDecimal amount);
 
+    void interestOnBalance();
+
 }

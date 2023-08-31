@@ -25,7 +25,7 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
     public static final String DELETE_BANK_BY_ID = "delete from banks where id=?";
     public static final String SELECT_BANK_BY_NAME = "select id as id, name as name from banks where name=?";
 
-    private BankDaoImpl(ConnectionPool pool, Logger log) {
+    public BankDaoImpl(ConnectionPool pool, Logger log) {
         super(pool, log);
     }
 
@@ -145,13 +145,5 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
             return new Bank(resultSet.getLong(ConfigurationManager.getProperty("table.id")),
                     resultSet.getString(ConfigurationManager.getProperty("table.name")),
                     List.of());
-    }
-
-    public static BankDaoImpl getInstance() {
-        return Holder.INSTANCE;
-    }
-
-    private static class Holder {
-        public static final BankDaoImpl INSTANCE = new BankDaoImpl(ConnectionPool.lockingPool(), logger);
     }
 }

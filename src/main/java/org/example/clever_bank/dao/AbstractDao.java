@@ -17,14 +17,4 @@ public abstract class AbstractDao<T extends Entity> {
         this.pool = pool;
         this.log = log;
     }
-
-    public abstract Optional<T> create(T entity) throws DaoException;
-
-    public abstract Optional<T> read(Long id) throws DaoException;
-
-    public abstract List<T> readAll();
-
-    public abstract Optional<T> update(T entity);
-
-    public abstract boolean delete(Long id);
 }

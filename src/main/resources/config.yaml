@@ -4,16 +4,10 @@ db:
   password: postgres
   poolsize: 8
   url: jdbc:postgresql://localhost:5432/clever_bank
-  
-##################################################
-url:
-  author: controller?command=author_page
-  main: controller?command=main_page
-  account: controller?command=account_page
-  catalog: controller?command=catalog_page
-  error: /controller?command=error_page
-#  reader.order=controller?command=reader_book_order_page
-#  librarian.order=controller?command=librarian_book_order_page
+
+#################################################
+accrual:
+  percentage: 0.01
 
 ##################################################
 table:
@@ -33,25 +27,21 @@ table:
   owner_account_login: owner_account_login
   user_account_id: user_account_id
   user_account_login: user_account_login
+  owner_date_create: owner_ba_date_create
+  user_date_create: user_ba_date_create
   date_create: date_create
   type: type
 
 ###################################################
 pdf:
-  template: template.pdf
-  bill_id: bill_id
-  date: date
-  time: time
-  type: type
-  bank_sender: bank_sender
-  bank_recipient: bank_recipient
-  ba_sender: ba_sender
-  ba_recipient: ba_recipient
-  amount: amount
-  path.save: check/bill%s.pdf
+  template.bill: template.pdf
+  template.statement: statement.pdf
+  path.bill.save: check/bill%s.txt
+  path.statement.save: statement/statement%s_%s.pdf
 
 #######################################################
 operation:
   replenishment: Replenishment
   withdrawal: Withdrawal
   transaction: Transaction
+

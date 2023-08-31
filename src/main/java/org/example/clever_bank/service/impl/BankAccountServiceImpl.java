@@ -3,6 +3,10 @@ package org.example.clever_bank.service.impl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.clever_bank.connection.ConnectionPool;
+import org.example.clever_bank.dao.AccountDao;
+import org.example.clever_bank.dao.BankAccountDao;
+import org.example.clever_bank.dao.BankDao;
+import org.example.clever_bank.dao.TransactionDao;
 import org.example.clever_bank.dao.impl.AccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankAccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankDaoImpl;
@@ -14,7 +18,7 @@ import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
 import org.example.clever_bank.service.BankAccountService;
 import org.example.clever_bank.util.ConfigurationManager;
-import org.example.clever_bank.util.CreatorBill;
+import org.example.clever_bank.service.text.PaperWorker;
 import org.example.clever_bank.validation.Validator;
 
 import java.io.IOException;
@@ -24,6 +28,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class BankAccountServiceImpl implements BankAccountService {
 
@@ -32,18 +37,18 @@ public class BankAccountServiceImpl implements BankAccountService {
     public static final Long CLEVER_BANK_ID = 1L;
     public static final String CLEVER_BANK_NAME = "clever_bank";
 
-    private final BankAccountDaoImpl bankAccountDao;
-    private final TransactionDaoImpl transactionDao;
-    private final AccountDaoImpl accountDao;
-    private final BankDaoImpl bankDao;
-    private final CreatorBill creatorBill;
+    private final BankAccountDao bankAccountDao;
+    private final TransactionDao transactionDao;
+    private final AccountDao accountDao;
+    private final BankDao bankDao;
+    private final PaperWorker paperWorker;
 
-    public BankAccountServiceImpl(BankAccountDaoImpl bankAccountDaoImpl, TransactionDaoImpl transactionDao, AccountDaoImpl accountDao, BankDaoImpl bankDao, CreatorBill creatorBill) {
-        this.bankAccountDao = bankAccountDaoImpl;
+    public BankAccountServiceImpl(BankAccountDao bankAccountDao, TransactionDao transactionDao, AccountDao accountDao, BankDao bankDao, PaperWorker paperWorker) {
+        this.bankAccountDao = bankAccountDao;
         this.transactionDao = transactionDao;
         this.accountDao = accountDao;
         this.bankDao = bankDao;
-        this.creatorBill = creatorBill;
+        this.paperWorker = paperWorker;
     }
 
     @Override
@@ -127,7 +132,7 @@ public class BankAccountServiceImpl implements BankAccountService {
                     .orElseThrow(() -> new ServiceException("Operation is failed. Bank account is not updated"));
 
             Transaction transaction = craeteNewTransaction(amount, bankAccount, bankAccount, ConfigurationManager.getProperty("operation.replenishment"));
-            creatorBill.createBill(transaction.getId(), transaction.getType(), CLEVER_BANK_NAME, CLEVER_BANK_NAME,
+            paperWorker.createBill(transaction.getId(), transaction.getType(), CLEVER_BANK_NAME, CLEVER_BANK_NAME,
                     bankAccount.getId(), bankAccount.getId(), amount, transaction.getDateCreate());
 
             connection.commit();
@@ -168,7 +173,7 @@ public class BankAccountServiceImpl implements BankAccountService {
                     .orElseThrow(() -> new ServiceException("Operation is failed.Bank account is not updated"));
 
             Transaction transaction = craeteNewTransaction(amount, bankAccount, bankAccount, ConfigurationManager.getProperty("operation.withdrawal"));
-            creatorBill.createBill(transaction.getId(), transaction.getType(), CLEVER_BANK_NAME, CLEVER_BANK_NAME,
+            paperWorker.createBill(transaction.getId(), transaction.getType(), CLEVER_BANK_NAME, CLEVER_BANK_NAME,
                     bankAccount.getId(), bankAccount.getId(), amount, transaction.getDateCreate());
 
             connection.commit();
@@ -225,7 +230,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
             Bank bankTo = bankDao.read(bankId).orElseThrow(() -> new NotFoundEntityException("Bank is not found"));
 
-            creatorBill.createBill(transaction.getId(), transaction.getType(), CLEVER_BANK_NAME, bankTo.getName(),
+            paperWorker.createBill(transaction.getId(), transaction.getType(), CLEVER_BANK_NAME, bankTo.getName(),
                     bankAccountOwner.getId(), bankAccountUser.getId(), amount, transaction.getDateCreate());
 
             connection.commit();
@@ -249,6 +254,23 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     }
 
+    @Override
+    public void interestOnBalance() {
+        List<BankAccount> bankAccounts = bankAccountDao.readByBankId(CLEVER_BANK_ID);
+        if (bankAccounts.isEmpty()) {
+            throw new ServiceException("Empty");
+        }
+        bankAccounts.stream()
+                .peek(bankAccount -> bankAccount.setBalance(
+                        bankAccount.getBalance().add(bankAccount.getBalance().multiply(BigDecimal.valueOf(Double
+                                .valueOf(ConfigurationManager.getProperty("accrual.percentage")))))
+                ))
+                .collect(Collectors.toList());
+        bankAccounts.stream()
+                .forEach(bankAccount -> bankAccountDao.update(bankAccount)
+                        .orElseThrow(() -> new NotFoundEntityException(String.format("Bank account with id=%d is not updated", bankAccount.getId()))));
+    }
+
     private Transaction craeteNewTransaction(BigDecimal amount, BankAccount bankAccountOwner, BankAccount bankAccountUser, String type) {
         Transaction transaction = Transaction.builder()
                 .bankAccountFrom(bankAccountOwner)
@@ -261,15 +283,6 @@ public class BankAccountServiceImpl implements BankAccountService {
                 .orElseThrow(() -> new ServiceException("Transaction is not created"));
         return transactionDao.read(createTransaction.getId())
                 .orElseThrow(() -> new ServiceException("Transaction is not read"));
-    }
-
-    public static BankAccountServiceImpl getInstance() {
-        return Holder.INSTANCE;
-    }
-
-    private static class Holder {
-        public static final BankAccountServiceImpl INSTANCE = new BankAccountServiceImpl(BankAccountDaoImpl.getInstance(),
-                TransactionDaoImpl.getInstance(), AccountDaoImpl.getInstance(), BankDaoImpl.getInstance(), CreatorBill.getInstance());
     }
 }
 

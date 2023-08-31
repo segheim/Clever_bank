@@ -94,12 +94,4 @@ public class BankActivityMenu {
         }
         return String.format("Operation is completed. Balance=%s", balance.toString());
     }
-
-    public static BankActivityMenu getInstance() {
-        return Holder.INSTANCE;
-    }
-
-    private static class Holder {
-        public static final BankActivityMenu INSTANCE = new BankActivityMenu(new Scanner(System.in), BankAccountServiceImpl.getInstance());
-    }
 }

@@ -26,6 +26,10 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
     public static final String SELECT_ALL_BANK_ACCOUNTS = "select ba.id as id, ba.balance as balance, ba.date_create as date_create," +
             " a.id as owner_account_id, a.login as owner_account_login from bank_accounts as ba join accounts a on a.id = ba.account_id" +
             " join banks_bank_accounts bba on ba.id = bba.bank_account_id join banks b on b.id = bba.bank_id";
+    public static final String SELECT_BANK_ACCOUNTS_BY_BANK_ID = "select ba.id as id, ba.balance as balance," +
+            " ba.date_create as date_create, a.id as owner_account_id, a.login as owner_account_login" +
+            " from bank_accounts as ba join accounts a on a.id = ba.account_id" +
+            " join banks_bank_accounts bba on ba.id = bba.bank_account_id join banks b on b.id = bba.bank_id where b.id=?";
     public static final String SELECT_BANK_ACCOUNT_BY_ACCOUNT_ID_AND_BANK_ID = "select ba.id as id, ba.balance as balance, ba.date_create as date_create," +
             " a.id as owner_account_id, a.login as owner_account_login from bank_accounts as ba join accounts a on a.id = ba.account_id" +
             " join banks_bank_accounts bba on ba.id = bba.bank_account_id join banks b on b.id = bba.bank_id where a.id=? and b.id=?";
@@ -36,7 +40,7 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
     public static final String DELETE_BANK_ACCOUNT = "delete from bank_accounts where id=?";
     public static final String INSERT_NEW_BANK_BANK_ACCOUNT = "insert into banks_bank_accounts (bank_id, bank_account_id) values (?,?)";
 
-    private BankAccountDaoImpl(ConnectionPool pool, Logger log) {
+    public BankAccountDaoImpl(ConnectionPool pool, Logger log) {
         super(pool, log);
     }
 
@@ -156,6 +160,24 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
     }
 
     @Override
+    public List<BankAccount> readByBankId(Long bankId) {
+        logger.trace("start read bank accounts by bank id");
+        List<BankAccount> bankAccounts = new ArrayList<>();
+        try (final Connection connection = pool.takeConnection();
+             final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BANK_ACCOUNTS_BY_BANK_ID)) {
+            preparedStatement.setLong(1, bankId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                BankAccount bankAccount = executeBankAccount(resultSet);
+                bankAccounts.add(bankAccount);
+            }
+        } catch (SQLException e) {
+            logger.error("sql error, could not found bankAccounts", e);
+        }
+        return bankAccounts;
+    }
+
+    @Override
     public Optional<BankAccount> readByAccountLoginAndBankId(String login, Long bankId) {
         logger.trace("start read bank account by login and bank id");
         Optional<BankAccount> readBankAccount = Optional.empty();
@@ -202,13 +224,5 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
                         .build())
                 .dateCreate(resultSet.getTimestamp(ConfigurationManager.getProperty("table.date_create")).toLocalDateTime())
                 .build();
-    }
-
-    public static BankAccountDaoImpl getInstance() {
-        return Holder.INSTANCE;
-    }
-
-    private static class Holder {
-        public static final BankAccountDaoImpl INSTANCE = new BankAccountDaoImpl(ConnectionPool.lockingPool(), logger);
     }
 }

@@ -26,7 +26,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
     public static final String UPDATE_ACCOUNT = "update accounts set login=?, password=? where id=?";
     public static final String DELETE_ACCOUNT = "delete from accounts where id=?";
 
-    private AccountDaoImpl(ConnectionPool pool, Logger log) {
+    public AccountDaoImpl(ConnectionPool pool, Logger log) {
         super(pool, log);
     }
 
@@ -146,13 +146,5 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
         return new Account(resultSet.getLong(ConfigurationManager.getProperty("table.id")),
                 resultSet.getString(ConfigurationManager.getProperty("table.login")),
                 resultSet.getString(ConfigurationManager.getProperty("table.pass")));
-    }
-
-    public static AccountDaoImpl getInstance() {
-        return Holder.INSTANCE;
-    }
-
-    private static class Holder {
-        public static final AccountDaoImpl INSTANCE = new AccountDaoImpl(ConnectionPool.lockingPool(), logger);
     }
 }

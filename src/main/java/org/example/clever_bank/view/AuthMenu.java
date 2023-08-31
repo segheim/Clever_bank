@@ -53,12 +53,4 @@ public class AuthMenu {
             return Optional.empty();
         }
     }
-
-    public static AuthMenu getInstance() {
-        return Holder.INSTANCE;
-    }
-
-    private static class Holder {
-        public static final AuthMenu INSTANCE = new AuthMenu(new Scanner(System.in), AccountServiceImpl.getInstance());
-    }
 }

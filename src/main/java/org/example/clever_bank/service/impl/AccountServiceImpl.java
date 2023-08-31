@@ -71,12 +71,4 @@ public class AccountServiceImpl implements AccountService {
         }
         return optionalAccount.get();
     }
-
-    public static AccountServiceImpl getInstance() {
-        return Holder.INSTANCE;
-    }
-
-    private static class Holder {
-        public static final AccountServiceImpl INSTANCE = new AccountServiceImpl(AccountDaoImpl.getInstance());
-    }
 }

@@ -4,7 +4,8 @@ import org.example.clever_bank.entity.Account;
 
 import java.util.Optional;
 
-public interface AccountDao {
+public interface AccountDao extends DaoBase<Account> {
 
     Optional<Account> readByLogin(String login);
+
 }

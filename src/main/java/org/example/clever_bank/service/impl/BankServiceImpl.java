@@ -55,12 +55,4 @@ public class BankServiceImpl implements BankService {
         bankDao.read(id).orElseThrow(() -> new NotFoundEntityException(String.format("Bank with id=%d is not found", id)));
         return bankDao.delete(id);
     }
-
-    public static BankServiceImpl getInstance() {
-        return Holder.INSTANCE;
-    }
-
-    private static class Holder {
-        public static final BankServiceImpl INSTANCE = new BankServiceImpl(BankDaoImpl.getInstance());
-    }
 }
