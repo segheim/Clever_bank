@@ -33,11 +33,11 @@ table:
   type: type
 
 ###################################################
-pdf:
-  template.bill: template.pdf
-  template.statement: statement.pdf
-  path.bill.save: check/bill%s.txt
-  path.statement.save: statement/statement%s_%s.pdf
+path:
+  bill: check/bill%s_%s.txt
+  statement: statement/statement%s_%s.txt
+  bill.template: template.pdf
+  statement.template: statement.pdf
 
 #######################################################
 operation:

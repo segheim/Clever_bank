@@ -1,4 +1,4 @@
-package org.example.clever_bank.util;
+package org.example.clever_bank.service.accrual;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

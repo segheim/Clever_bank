@@ -10,6 +10,7 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDTextField;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.service.text.PaperWorker;
 import org.example.clever_bank.util.ConfigurationManager;
+import org.example.clever_bank.util.Constant;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,16 +39,13 @@ public class PaperWorkerPdfBox implements PaperWorker {
     private static final DateTimeFormatter formatterTimeFormation = DateTimeFormatter.ofPattern("yyyy-MM-dd, HH:mm");
     private static final DateTimeFormatter formatterSave = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
 
-
-    public static final int INDEX = 0;
-
     public PaperWorkerPdfBox() {
     }
 
     @Override
     public void createBill(Long transactionId, String type, String bankSender, String bankRecipient, Long bankAccountSenderId,
                            Long bankAccountRecipientId, BigDecimal amount, LocalDateTime dateCreate) throws IOException, URISyntaxException {
-        URL resource = this.getClass().getClassLoader().getResource(ConfigurationManager.getProperty("pdf.template.bill"));
+        URL resource = this.getClass().getClassLoader().getResource(ConfigurationManager.getProperty("path.bill.template"));
         File file = new File(resource.toURI());
 
         PDDocument doc = Loader.loadPDF(new RandomAccessReadBufferedFile(file));
@@ -64,12 +62,12 @@ public class PaperWorkerPdfBox implements PaperWorker {
         acroForm.getField(PDF_FORM_NAME_PDF_BA_RECIPIENT).setValue(bankAccountRecipientId.toString());
         acroForm.getField(PDF_FORM_NAME_AMOUNT).setValue(amount.toString());
 
-        doc.save(String.format(ConfigurationManager.getProperty("pdf.path.bill.save"), transactionId));
+        doc.save(String.format(ConfigurationManager.getProperty("path.bill"), transactionId));
     }
 
     @Override
     public void createStatement(List<Transaction> transactions, LocalDateTime periodFrom, LocalDateTime periodTo) throws IOException, URISyntaxException {
-        URL resource = this.getClass().getClassLoader().getResource(ConfigurationManager.getProperty("pdf.template.statement"));
+        URL resource = this.getClass().getClassLoader().getResource(ConfigurationManager.getProperty("path.statement.template"));
         File file = new File(resource.toURI());
 
         PDDocument doc = Loader.loadPDF(new RandomAccessReadBufferedFile(file));
@@ -79,16 +77,16 @@ public class PaperWorkerPdfBox implements PaperWorker {
         pdTextField.setValue("newsdsd");
 
 
-        acroForm.getField("account").setValue(transactions.get(INDEX).getBankAccountFrom().getAccount().getLogin());
-        acroForm.getField("id").setValue(transactions.get(INDEX).getBankAccountFrom().getId().toString());
+        acroForm.getField("account").setValue(transactions.get(Constant.INDEX).getBankAccountFrom().getAccount().getLogin());
+        acroForm.getField("id").setValue(transactions.get(Constant.INDEX).getBankAccountFrom().getId().toString());
         acroForm.getField("currency").setValue("BYN");
-        acroForm.getField("date_create").setValue(transactions.get(INDEX).getBankAccountFrom().getDateCreate().format(formatterDate));
+        acroForm.getField("date_create").setValue(transactions.get(Constant.INDEX).getBankAccountFrom().getDateCreate().format(formatterDate));
         acroForm.getField("period_from").setValue(periodFrom.format(formatterDate));
         acroForm.getField("period_to").setValue(periodTo.format(formatterDate));
         acroForm.getField("statement_date").setValue(LocalDateTime.now().format(formatterTimeFormation));
-        acroForm.getField("balance").setValue(transactions.get(INDEX).getBankAccountFrom().getBalance().toString());
+        acroForm.getField("balance").setValue(transactions.get(Constant.INDEX).getBankAccountFrom().getBalance().toString());
 
-        PDPage page = doc.getPages().get(0);
+//        PDPage page = doc.getPages().get(0);
 
 
         List<PDField> fields = new ArrayList<>();
@@ -119,7 +117,7 @@ public class PaperWorkerPdfBox implements PaperWorker {
 //        doc.getDocumentCatalog().setAcroForm(acroForm);
 //        acroForm.setFields(fields);
 
-        doc.save(String.format(ConfigurationManager.getProperty("pdf.path.statement.save"), transactions.get(INDEX).getBankAccountFrom().getId(), LocalDateTime.now().format(formatterSave)));
+        doc.save(String.format(ConfigurationManager.getProperty("path.statement"), transactions.get(Constant.INDEX).getBankAccountFrom().getId(), LocalDateTime.now().format(formatterSave)));
 
     }
 }

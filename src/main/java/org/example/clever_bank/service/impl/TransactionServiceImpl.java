@@ -31,7 +31,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final AccountDaoImpl accountDao;
     private final PaperWorker paperWorker;
 
-    private TransactionServiceImpl(TransactionDaoImpl transactionDao, BankAccountDaoImpl bankAccountDao, AccountDaoImpl accountDao, PaperWorker paperWorker) {
+    public TransactionServiceImpl(TransactionDaoImpl transactionDao, BankAccountDaoImpl bankAccountDao, AccountDaoImpl accountDao, PaperWorker paperWorker) {
         this.transactionDao = transactionDao;
         this.bankAccountDao = bankAccountDao;
         this.accountDao = accountDao;

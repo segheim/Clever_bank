@@ -10,7 +10,7 @@ import org.example.clever_bank.dao.impl.TransactionDaoImpl;
 import org.example.clever_bank.service.impl.AccountServiceImpl;
 import org.example.clever_bank.service.impl.BankAccountServiceImpl;
 import org.example.clever_bank.service.text.impl.PaperWorkerPdf;
-import org.example.clever_bank.util.ManagerAccrualOfInterest;
+import org.example.clever_bank.service.accrual.ManagerAccrualOfInterest;
 import org.example.clever_bank.view.AuthMenu;
 import org.example.clever_bank.view.BankActivityMenu;
 import org.example.clever_bank.view.Menu;
@@ -21,7 +21,7 @@ public class BeanRegistration {
 
     private static final Logger logger = LogManager.getLogger(BeanRegistration.class);
 
-    public static Menu getMenu() {
+    public static Menu refgistrationMenu() {
         ConnectionPool connectionPool = ConnectionPool.lockingPool();
         connectionPool.init();
         Scanner scanner = new Scanner(System.in);
