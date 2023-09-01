@@ -3,7 +3,6 @@ package org.example.clever_bank.service.text.impl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.clever_bank.entity.Transaction;
-import org.example.clever_bank.service.impl.BankAccountServiceImpl;
 import org.example.clever_bank.service.text.PaperWorker;
 import org.example.clever_bank.util.ConfigurationManager;
 import org.example.clever_bank.util.Constant;
@@ -70,16 +69,8 @@ public class PaperWorkerPdf implements PaperWorker {
 //        document.close();
     }
 
-    private void writeToFile(Long transactionId, String bill, String path) throws IOException {
-        File file = new File(String.format(path, transactionId, LocalDateTime.now().format(formatterSave)));
-
-        try(FileOutputStream out = new FileOutputStream(file)){
-            out.write(bill.getBytes());
-        }
-    }
-
     @Override
-    public void createStatement(List<Transaction> transactions, LocalDateTime periodFrom, LocalDateTime periodTo) throws IOException {
+    public String createStatement(List<Transaction> transactions, LocalDateTime periodFrom, LocalDateTime periodTo) {
         String statementOfAccount = String.format("""                
                                       Выписка
                                     Clever Bank
@@ -99,28 +90,30 @@ public class PaperWorkerPdf implements PaperWorker {
                     LocalDateTime.now().format(formatterTimeFormation),
                     transactions.get(Constant.INDEX).getBankAccountFrom().getBalance().toString());
 
+        StringBuilder stringBuilderBill = fetchLineTransactionInfo(transactions, statementOfAccount);
+        try {
+            writeToFile(transactions.get(Constant.INDEX).getBankAccountFrom().getId(),
+                    stringBuilderBill.toString(), ConfigurationManager.getProperty("path.statement"));
+        } catch (IOException e) {
+            logger.error("Could not write to file");
+        }
+        return stringBuilderBill.toString();
+    }
+
+    private void writeToFile(Long transactionId, String bill, String path) throws IOException {
+        File file = new File(String.format(path, transactionId, LocalDateTime.now().format(formatterSave)));
+        try(FileOutputStream out = new FileOutputStream(file)){
+            out.write(bill.getBytes());
+        }
+    }
+
+    private static StringBuilder fetchLineTransactionInfo(List<Transaction> transactions, String statementOfAccount) {
         StringBuilder stringBuilderBill = new StringBuilder(statementOfAccount);
         for (Transaction transaction : transactions) {
             String transactionLine = String.format(" %-11.11s   | %-30.30s | %-11.11s",
                     transaction.getDateCreate().format(formatterDateWIthPoints), transaction.getType(), transaction.getSum());
             stringBuilderBill.append(transactionLine).append("\n");
         }
-        try {
-            writeToFile(transactions.get(Constant.INDEX).getBankAccountFrom().getId(), stringBuilderBill.toString(), ConfigurationManager.getProperty("path.statement"));
-        } catch (IOException e) {
-            logger.error("Could not write to file");
-        }
-//
-//
-//        File file = new File(String.format(ConfigurationManager.getProperty("path.statement"),
-//                transactions.get(Constant.INDEX).getBankAccountFrom().getId(), LocalDateTime.now().format(formatterSave)));
-//
-//        try(FileOutputStream out = new FileOutputStream(file)){
-//            out.write(statementOfAccount.getBytes());
-//        }
-    }
-
-    private void appendLine(String line) {
-
+        return stringBuilderBill;
     }
 }

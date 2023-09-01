@@ -7,8 +7,10 @@ import org.example.clever_bank.dao.impl.AccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankAccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankDaoImpl;
 import org.example.clever_bank.dao.impl.TransactionDaoImpl;
+import org.example.clever_bank.service.TransactionService;
 import org.example.clever_bank.service.impl.AccountServiceImpl;
 import org.example.clever_bank.service.impl.BankAccountServiceImpl;
+import org.example.clever_bank.service.impl.TransactionServiceImpl;
 import org.example.clever_bank.service.text.impl.PaperWorkerPdf;
 import org.example.clever_bank.service.accrual.ManagerAccrualOfInterest;
 import org.example.clever_bank.view.AuthMenu;
@@ -26,10 +28,17 @@ public class BeanRegistration {
         connectionPool.init();
         Scanner scanner = new Scanner(System.in);
         AuthMenu authMenu = new AuthMenu(scanner, new AccountServiceImpl(new AccountDaoImpl(connectionPool, logger)));
+
+        BankAccountDaoImpl bankAccountDao = new BankAccountDaoImpl(connectionPool, logger);
+        AccountDaoImpl accountDao = new AccountDaoImpl(connectionPool, logger);
+        PaperWorkerPdf paperWorker = new PaperWorkerPdf();
+
         BankAccountServiceImpl bankAccountService = new BankAccountServiceImpl(
-                new BankAccountDaoImpl(connectionPool, logger), new TransactionDaoImpl(connectionPool, logger),
-                new AccountDaoImpl(connectionPool, logger), new BankDaoImpl(connectionPool, logger), new PaperWorkerPdf());
-        BankActivityMenu bankActivityMenu = new BankActivityMenu(scanner, bankAccountService);
+                bankAccountDao, new TransactionDaoImpl(connectionPool, logger),
+                accountDao, new BankDaoImpl(connectionPool, logger), paperWorker);
+
+        BankActivityMenu bankActivityMenu = new BankActivityMenu(scanner, bankAccountService,
+                new TransactionServiceImpl(new TransactionDaoImpl(connectionPool, logger), bankAccountDao, accountDao, paperWorker));
 
         new ManagerAccrualOfInterest(bankAccountService);
 

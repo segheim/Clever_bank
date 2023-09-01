@@ -6,7 +6,6 @@ import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
 import org.example.clever_bank.exception.ValidationException;
 import org.example.clever_bank.service.AccountService;
-import org.example.clever_bank.service.impl.AccountServiceImpl;
 
 import java.util.Optional;
 import java.util.Scanner;
@@ -21,36 +20,27 @@ public class AuthMenu {
         this.accountService = accountService;
     }
 
-    public Optional<Account> signIn() throws AuthenticateException {
+    public Account signIn() throws AuthenticateException, ValidationException {
         System.out.println("Enter login: ");
         String login = scanner.next();
         scanner.nextLine();
         System.out.println("Enter password: ");
         String password = scanner.next();
         scanner.nextLine();
-        Account authenticate;
-        try {
-            authenticate = accountService.authenticate(login, password);
-        } catch (ServiceException | NotFoundEntityException | ValidationException e) {
-            return Optional.empty();
-        }
-        return Optional.of(authenticate);
-    }
+        return accountService.authenticate(login, password);
+            }
 
-    public Optional<Account> signUp() {
+    public Account signUp() throws ValidationException {
         System.out.println("Enter login: ");
         String login = scanner.next();
         scanner.nextLine();
         System.out.println("Enter password: ");
         String password = scanner.next();
         scanner.nextLine();
-        try {
-            return Optional.of(accountService.add(Account.builder()
-                                    .login(login)
-                                    .password(password)
-                                    .build()));
-        } catch (ValidationException e) {
-            return Optional.empty();
-        }
+        return accountService.add(Account.builder()
+                .login(login)
+                .password(password)
+                .build());
+
     }
 }

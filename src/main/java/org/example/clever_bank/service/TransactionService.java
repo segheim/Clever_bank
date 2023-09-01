@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface TransactionService extends Service<Transaction> {
 
-    List<Transaction> createStatementOfAccount(Long accountId, LocalDateTime periodFrom, LocalDateTime periodTo);
+    String createStatementOfAccount(Long accountId, LocalDateTime periodFrom, LocalDateTime periodTo);
 
 }

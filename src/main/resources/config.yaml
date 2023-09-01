@@ -9,6 +9,10 @@ db:
 accrual:
   percentage: 0.01
 
+bank:
+  id: 1
+  name: clever_bank
+
 ##################################################
 table:
   id: id

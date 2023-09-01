@@ -13,6 +13,6 @@ public interface PaperWorker {
     void createBill(Long transactionId, String type, String bankSender, String bankRecipient, Long bankAccountSenderId,
                     Long bankAccountRecipientId, BigDecimal amount, LocalDateTime dateCreate) throws IOException, URISyntaxException;
 
-    void createStatement(List<Transaction> transaction, LocalDateTime periodFrom, LocalDateTime periodTo) throws IOException, URISyntaxException;
+    String createStatement(List<Transaction> transaction, LocalDateTime periodFrom, LocalDateTime periodTo) throws IOException, URISyntaxException;
 
 }

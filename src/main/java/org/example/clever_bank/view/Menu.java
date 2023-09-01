@@ -1,9 +1,8 @@
 package org.example.clever_bank.view;
 
 import org.example.clever_bank.entity.Account;
-import org.example.clever_bank.exception.AuthenticateException;
+import org.example.clever_bank.exception.ValidationException;
 
-import java.util.Optional;
 import java.util.Scanner;
 
 public class Menu {
@@ -32,23 +31,19 @@ public class Menu {
             scanner.nextLine();
             switch (choice) {
                 case 1:
-                    if (authMenu.signUp().isPresent()) {
-                        System.out.println("You successfully registered!");
+                    try {
+                        authMenu.signUp();
+                    } catch (Exception e) {
+                        System.out.println(String.format("Failed. %s", e.getMessage()));
                         break;
-                    } else {
-                        System.out.println("System error");
                     }
+                    System.out.println("You successfully registered!");
                     break;
                 case 2:
                     Account account;
                     try {
-                        Optional<Account> optionalAccount = authMenu.signIn();
-                        if (optionalAccount.isEmpty()) {
-                            System.out.println("System error");
-                            continue;
-                        }
-                        account = optionalAccount.get();
-                    } catch (AuthenticateException e) {
+                        account = authMenu.signIn();
+                    } catch (Exception e) {
                         System.out.println(String.format("Authentication is failed. %s", e.getMessage()));
                         continue;
                     }
@@ -59,7 +54,8 @@ public class Menu {
                         System.out.println("2. Withdrawal.");
                         System.out.println("3. Transfer money to another customer's account.");
                         System.out.println("4. Transfer money to a customer of another bank.");
-                        System.out.println("5. Log out.");
+                        System.out.println("5. Statement of account.");
+                        System.out.println("6. Log out.");
                         System.out.println("Enter your choice: ");
                         choice = scanner.nextInt();
                         scanner.nextLine();
@@ -77,11 +73,13 @@ public class Menu {
                                 System.out.println(bankActivityMenu.externalTransfer(account.getId()));
                                 break;
                             case 5:
+                                System.out.println(bankActivityMenu.createStatementOfAccount(account.getId()));
+                                break;
+                            case 6:
                                 continue outer;
                             default:
                                 System.out.println("Enter correct number of action!");
                         }
-                        break;
                     }
                 case 3:
                     System.out.println("\nBye!");

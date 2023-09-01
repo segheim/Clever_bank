@@ -6,13 +6,14 @@ import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.impl.AccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankAccountDaoImpl;
 import org.example.clever_bank.dao.impl.TransactionDaoImpl;
+import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
 import org.example.clever_bank.exception.ValidationException;
 import org.example.clever_bank.service.TransactionService;
 import org.example.clever_bank.service.text.PaperWorker;
-import org.example.clever_bank.service.text.impl.PaperWorkerPdfBox;
+import org.example.clever_bank.util.ConfigurationManager;
 import org.example.clever_bank.validation.Validator;
 
 import java.io.IOException;
@@ -84,17 +85,22 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> createStatementOfAccount(Long accountId, LocalDateTime periodFrom, LocalDateTime periodTo) {
-        List<Transaction> transactions;
+    public String createStatementOfAccount(Long accountId, LocalDateTime periodFrom, LocalDateTime periodTo) {
+        if (periodFrom.equals(periodTo)) {
+            BankAccount bankAccount = bankAccountDao.readByAccountIdAndBankId(accountId, Long.valueOf(ConfigurationManager.getProperty("bank.id")))
+                    .orElseThrow(() -> new NotFoundEntityException(String.format("Bank account with account id=%d is not found", accountId)));
+            periodFrom = bankAccount.getDateCreate();
+        }
+        String statementOfAccount;
         Connection connection = ConnectionPool.lockingPool().takeConnection();
         try {
             connection.setAutoCommit(false);
             accountDao.read(accountId).orElseThrow(() -> new NotFoundEntityException("Account is not found"));
-            transactions = transactionDao.readByPeriodAndAccountId(accountId, periodFrom, periodTo);
+            List<Transaction> transactions = transactionDao.readByPeriodAndAccountId(accountId, periodFrom, periodTo);
             if (transactions.isEmpty()) {
                 throw new ServiceException("Empty");
             }
-            paperWorker.createStatement(transactions, periodFrom, periodTo);
+            statementOfAccount = paperWorker.createStatement(transactions, periodFrom, periodTo);
             connection.commit();
         } catch (SQLException | NotFoundEntityException | IOException | URISyntaxException e) {
             try {
@@ -112,6 +118,6 @@ public class TransactionServiceImpl implements TransactionService {
                 logger.error("Database access error occurs connection close", e);
             }
         }
-        return transactions;
+        return statementOfAccount;
     }
 }

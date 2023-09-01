@@ -26,8 +26,10 @@ public class ManagerAccrualOfInterest implements Runnable {
                 LocalDate now = LocalDate.now();
                 if (now.lengthOfMonth() == now.getDayOfMonth()) {
                     bankAccountService.interestOnBalance();
+                    logger.info("Percent was accrued on account balances");
                 }
                 Thread.sleep(30000);
+                logger.info("ACCRUED CHECKED");
             } catch (InterruptedException e) {
                 logger.error("Thread has been interrupted in ManagerAccrualOfInterest");
             }
