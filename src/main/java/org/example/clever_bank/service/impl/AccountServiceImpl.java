@@ -2,6 +2,7 @@ package org.example.clever_bank.service.impl;
 
 import org.example.clever_bank.dao.impl.AccountDaoImpl;
 import org.example.clever_bank.entity.Account;
+import org.example.clever_bank.entity.Loggable;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
 import org.example.clever_bank.exception.ValidationException;
@@ -61,6 +62,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Loggable
     public Account authenticate(String login, String password) throws ValidationException {
         Optional<Account> optionalAccount = accountDao.readByLogin(login);
         if (optionalAccount.isEmpty()) {

@@ -25,6 +25,8 @@ dependencies {
     implementation 'org.apache.pdfbox:pdfbox:3.0.0'
     implementation 'org.apache.pdfbox:fontbox:3.0.0'
     compileOnly 'org.projectlombok:lombok:1.18.28'
+    implementation 'org.aspectj:aspectjrt:1.9.19'
+    implementation 'org.aspectj:aspectjweaver:1.9.19'
     runtimeOnly 'org.postgresql:postgresql:42.6.0'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
     testImplementation platform('org.junit:junit-bom:5.9.1')

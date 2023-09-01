@@ -20,7 +20,7 @@ public class AuthMenu {
         this.accountService = accountService;
     }
 
-    public Account signIn() throws AuthenticateException, ValidationException {
+    public Account signIn() throws ValidationException {
         System.out.println("Enter login: ");
         String login = scanner.next();
         scanner.nextLine();
