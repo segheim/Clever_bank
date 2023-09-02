@@ -1,5 +1,6 @@
 package org.example.clever_bank.service;
 
+import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.impl.AccountDaoImpl;
 import org.example.clever_bank.entity.Account;
 import org.example.clever_bank.exception.NotFoundEntityException;
@@ -37,6 +38,7 @@ public class AccountServiceImplTest {
 
     @BeforeEach
     public void init() {
+        ConnectionPool.lockingPool().init();
 
         id = 1l;
         login = "Semenovich";
