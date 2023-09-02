@@ -26,8 +26,9 @@ public class AccountServiceImpl implements AccountService {
                 !Validator.getInstance().validatePassword(account.getPassword())) {
             throw new ValidationException("Login or password is not valid");
         }
-        accountDao.readByLogin(account.getLogin())
-                .orElseThrow(() -> new NotFoundEntityException(String.format("Account with login=%s", account.getLogin())));
+        if (accountDao.readByLogin(account.getLogin()).isPresent()) {
+            throw new ServiceException(String.format("Account login=%s is present", account.getLogin()));
+        }
         return accountDao.create(account).orElseThrow(() -> new ServiceException("Account is not created"));
     }
 
