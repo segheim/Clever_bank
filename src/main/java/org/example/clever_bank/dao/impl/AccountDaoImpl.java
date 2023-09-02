@@ -6,7 +6,6 @@ import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.AbstractDao;
 import org.example.clever_bank.dao.AccountDao;
 import org.example.clever_bank.entity.Account;
-import org.example.clever_bank.exception.DaoException;
 import org.example.clever_bank.util.ConfigurationManager;
 
 import java.sql.*;
@@ -31,7 +30,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
     }
 
     @Override
-    public Optional<Account> create(Account entity){
+    public Optional<Account> create(Account entity) {
         logger.trace("start create account");
         Optional<Account> createdAccount = Optional.empty();
         try (final Connection connection = pool.takeConnection();
@@ -53,7 +52,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
     }
 
     @Override
-    public Optional<Account> read(Long id){
+    public Optional<Account> read(Long id) {
         logger.trace("start read account");
         Optional<Account> readAccount = Optional.empty();
         try (final Connection connection = pool.takeConnection();

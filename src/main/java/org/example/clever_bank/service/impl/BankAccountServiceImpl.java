@@ -47,11 +47,6 @@ public class BankAccountServiceImpl implements BankAccountService {
         this.paperWorker = paperWorker;
     }
 
-    /**
-     *
-     * @param bankAccount
-     * @return
-     */
     @Override
     public BankAccount add(BankAccount bankAccount) {
         if (!Validator.getInstance().validateAmount(bankAccount.getBalance())) {

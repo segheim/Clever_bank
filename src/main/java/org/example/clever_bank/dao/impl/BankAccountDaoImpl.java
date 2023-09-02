@@ -7,7 +7,6 @@ import org.example.clever_bank.dao.AbstractDao;
 import org.example.clever_bank.dao.BankAccountDao;
 import org.example.clever_bank.entity.Account;
 import org.example.clever_bank.entity.BankAccount;
-import org.example.clever_bank.exception.DaoException;
 import org.example.clever_bank.util.ConfigurationManager;
 
 import java.sql.*;
@@ -58,10 +57,10 @@ public class BankAccountDaoImpl extends AbstractDao<BankAccount> implements Bank
                 if (generatedKeys.next()) {
                     long key = generatedKeys.getLong(1);
                     createdBankAccount = Optional.of(BankAccount.builder()
-                                    .id(key)
-                                    .account(entity.getAccount())
-                                    .balance(entity.getBalance())
-                                    .build());
+                            .id(key)
+                            .account(entity.getAccount())
+                            .balance(entity.getBalance())
+                            .build());
                 }
             }
         } catch (SQLException e) {

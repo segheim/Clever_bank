@@ -6,7 +6,6 @@ import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.AbstractDao;
 import org.example.clever_bank.dao.BankDao;
 import org.example.clever_bank.entity.Bank;
-import org.example.clever_bank.exception.DaoException;
 import org.example.clever_bank.util.ConfigurationManager;
 
 import java.sql.*;
@@ -42,9 +41,9 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
                 if (generatedKeys.next()) {
                     long key = generatedKeys.getLong(1);
                     createdBank = Optional.of(Bank.builder()
-                                    .id(key)
-                                    .name(bank.getName())
-                                    .build());
+                            .id(key)
+                            .name(bank.getName())
+                            .build());
                 }
             }
         } catch (SQLException e) {
@@ -142,8 +141,8 @@ public class BankDaoImpl extends AbstractDao<Bank> implements BankDao {
     }
 
     private Bank executeBank(ResultSet resultSet) throws SQLException {
-            return new Bank(resultSet.getLong(ConfigurationManager.getProperty("table.id")),
-                    resultSet.getString(ConfigurationManager.getProperty("table.name")),
-                    List.of());
+        return new Bank(resultSet.getLong(ConfigurationManager.getProperty("table.id")),
+                resultSet.getString(ConfigurationManager.getProperty("table.name")),
+                List.of());
     }
 }
