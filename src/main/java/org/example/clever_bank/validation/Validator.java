@@ -6,6 +6,9 @@ import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Validate data
+ */
 public class Validator {
 
     private Validator() {

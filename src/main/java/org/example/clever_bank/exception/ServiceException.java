@@ -1,5 +1,8 @@
 package org.example.clever_bank.exception;
 
+/**
+ * Exception service layer
+ */
 public class ServiceException extends RuntimeException{
 
     public ServiceException(String message, Throwable cause) {

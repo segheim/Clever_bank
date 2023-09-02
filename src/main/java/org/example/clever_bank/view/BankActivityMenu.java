@@ -9,6 +9,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 
+/**
+ * Display Clever bank operations
+ */
 public class BankActivityMenu {
 
     public static final int NUMBER_FIRST_DAY = 1;
@@ -25,6 +28,12 @@ public class BankActivityMenu {
         this.transactionService = transactionService;
     }
 
+    /**
+     * Operation replenishment
+     *
+     * @param accountId account id
+     * @return account balance
+     */
     public String replenishmentAccount(Long accountId) {
         System.out.println("Enter deposit amount: ");
         BigDecimal moneyAmount = scanner.nextBigDecimal();
@@ -38,6 +47,12 @@ public class BankActivityMenu {
         return String.format("Operation is completed. Balance=%s", bankAccount.getBalance().toString());
     }
 
+    /**
+     * Operation withdrawal
+     *
+     * @param accountId - account id
+     * @return account balance
+     */
     public String withdrawal(Long accountId) {
         System.out.println("Enter withdrawal amount: ");
         BigDecimal moneyAmount = scanner.nextBigDecimal();
@@ -51,6 +66,12 @@ public class BankActivityMenu {
         return String.format("Operation is completed. Balance=%s", bankAccount.getBalance().toString());
     }
 
+    /**
+     * Operation transfer internal Clever bank
+     *
+     * @param accountId - account id
+     * @return account balance
+     */
     public String internalTransfer(Long accountId) {
         System.out.println("Enter account login to whom you want to transfer money: ");
         String transferAccountLogin = scanner.nextLine();
@@ -68,6 +89,11 @@ public class BankActivityMenu {
         return String.format("Operation is completed. Balance=%s", balance.toString());
     }
 
+    /**
+     * External transfer to another bank
+     * @param accountId - account id
+     * @return account balance
+     */
     public String externalTransfer(Long accountId) {
         int choice;
         while (true) {
@@ -101,6 +127,12 @@ public class BankActivityMenu {
         return String.format("Operation is completed. Balance=%s", balance.toString());
     }
 
+    /**
+     * Create statement of account according select conditions
+     *
+     * @param accountId - account id
+     * @return statement of account text
+     */
     public String createStatementOfAccount(Long accountId) {
         while (true) {
             System.out.println("Select a period: ");

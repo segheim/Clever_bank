@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+/**
+ * Proxy Connection
+ */
 public class ProxyConnection implements Connection {
     private final Connection connection;
 

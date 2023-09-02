@@ -52,7 +52,8 @@ public class AccountServiceImpl implements AccountService {
                 !Validator.getInstance().validatePassword(account.getPassword())) {
             throw new ValidationException("Login or password is not valid");
         }
-        accountDao.read(account.getId()).orElseThrow(() -> new NotFoundEntityException(String.format("Account with id=%d is not found", account.getId())));
+        accountDao.read(account.getId())
+                .orElseThrow(() -> new NotFoundEntityException(String.format("Account with id=%d is not found", account.getId())));
         return accountDao.update(account).orElseThrow(() -> new ServiceException("Account is not updated"));
     }
 

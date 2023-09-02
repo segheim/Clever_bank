@@ -1,10 +1,12 @@
 package org.example.clever_bank.view;
 
 import org.example.clever_bank.entity.Account;
-import org.example.clever_bank.exception.ValidationException;
 
 import java.util.Scanner;
 
+/**
+ * Base menu Clever bank
+ */
 public class Menu {
 
     private final AuthMenu authMenu;
@@ -17,6 +19,9 @@ public class Menu {
         this.scanner = scanner;
     }
 
+    /**
+     * Display menu operations
+     */
     public void getMenu() {
 
         outer:

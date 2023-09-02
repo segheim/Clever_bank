@@ -7,6 +7,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Entity transaction
+ */
 @Data
 @Builder
 @AllArgsConstructor

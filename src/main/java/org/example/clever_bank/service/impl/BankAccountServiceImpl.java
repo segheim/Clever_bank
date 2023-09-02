@@ -47,6 +47,11 @@ public class BankAccountServiceImpl implements BankAccountService {
         this.paperWorker = paperWorker;
     }
 
+    /**
+     *
+     * @param bankAccount
+     * @return
+     */
     @Override
     public BankAccount add(BankAccount bankAccount) {
         if (!Validator.getInstance().validateAmount(bankAccount.getBalance())) {
@@ -87,11 +92,18 @@ public class BankAccountServiceImpl implements BankAccountService {
         return createBankAccount;
     }
 
+    /**
+     * @param id
+     * @return
+     */
     @Override
     public BankAccount findById(Long id) {
         return bankAccountDao.read(id).orElseThrow(() -> new ServiceException("Bank account is not found"));
     }
 
+    /**
+     * @return
+     */
     @Override
     public List<BankAccount> findAll() {
         List<BankAccount> bankAccounts = bankAccountDao.readAll();
@@ -115,12 +127,12 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public BankAccount replenishmentAccount(Long id, BigDecimal amount) {
+    public BankAccount replenishmentAccount(Long accountId, BigDecimal amount) {
         BankAccount updatedBankAccount;
         Connection connection = ConnectionPool.lockingPool().takeConnection();
         try {
             connection.setAutoCommit(false);
-            BankAccount bankAccount = bankAccountDao.readByAccountIdAndBankId(id, CLEVER_BANK_ID)
+            BankAccount bankAccount = bankAccountDao.readByAccountIdAndBankId(accountId, CLEVER_BANK_ID)
                     .orElseThrow(() -> new NotFoundEntityException("Not found bank account"));
             BigDecimal balance = bankAccount.getBalance();
             bankAccount.setBalance(balance.add(amount));
@@ -251,7 +263,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public void interestOnBalance() {
+    public void accruePercentOnUserBalancesOfCleverBank() {
         List<BankAccount> bankAccounts = bankAccountDao.readByBankId(CLEVER_BANK_ID);
         if (bankAccounts.isEmpty()) {
             throw new ServiceException("Empty");

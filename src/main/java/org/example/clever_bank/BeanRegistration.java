@@ -7,7 +7,6 @@ import org.example.clever_bank.dao.impl.AccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankAccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankDaoImpl;
 import org.example.clever_bank.dao.impl.TransactionDaoImpl;
-import org.example.clever_bank.service.TransactionService;
 import org.example.clever_bank.service.impl.AccountServiceImpl;
 import org.example.clever_bank.service.impl.BankAccountServiceImpl;
 import org.example.clever_bank.service.impl.TransactionServiceImpl;
@@ -19,11 +18,14 @@ import org.example.clever_bank.view.Menu;
 
 import java.util.Scanner;
 
+/**
+ * Initializer of classes
+ */
 public class BeanRegistration {
 
     private static final Logger logger = LogManager.getLogger(BeanRegistration.class);
 
-    public static Menu refgistrationMenu() {
+    public static Menu registrationMenu() {
         ConnectionPool connectionPool = ConnectionPool.lockingPool();
         connectionPool.init();
         Scanner scanner = new Scanner(System.in);

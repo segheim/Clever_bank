@@ -10,6 +10,9 @@ import org.example.clever_bank.service.AccountService;
 import java.util.Optional;
 import java.util.Scanner;
 
+/**
+ * Display menu for authenticate
+ */
 public class AuthMenu {
 
     private final Scanner scanner;
@@ -20,6 +23,12 @@ public class AuthMenu {
         this.accountService = accountService;
     }
 
+    /**
+     * Sing in Clever bank
+     *
+     * @return account
+     * @throws ValidationException
+     */
     public Account signIn() throws ValidationException {
         System.out.println("Enter login: ");
         String login = scanner.next();
@@ -30,6 +39,12 @@ public class AuthMenu {
         return accountService.authenticate(login, password);
             }
 
+    /**
+     * Sign up Clever bank
+     *
+     * @return
+     * @throws ValidationException
+     */
     public Account signUp() throws ValidationException {
         System.out.println("Enter login: ");
         String login = scanner.next();

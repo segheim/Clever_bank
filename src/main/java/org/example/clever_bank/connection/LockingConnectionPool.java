@@ -16,6 +16,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Implementation of connection pool
+ */
 public class LockingConnectionPool implements ConnectionPool {
 
     private static final Logger LOG = LogManager.getLogger(LockingConnectionPool.class);

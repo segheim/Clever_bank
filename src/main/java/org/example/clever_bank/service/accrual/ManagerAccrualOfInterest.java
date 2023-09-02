@@ -6,12 +6,19 @@ import org.example.clever_bank.service.BankAccountService;
 
 import java.time.LocalDate;
 
+/**
+ * Thread daemon. Accrual of interest on customer accounts
+ */
 public class ManagerAccrualOfInterest implements Runnable {
 
     private static final Logger logger = LogManager.getLogger(ManagerAccrualOfInterest.class);
 
     private final BankAccountService bankAccountService;
 
+    /**
+     * Constructor initialised bank account service and launches itself thread demon
+     * @param bankAccountService - bank account service
+     */
     public ManagerAccrualOfInterest(BankAccountService bankAccountService) {
         this.bankAccountService = bankAccountService;
         Thread thread = new Thread(this);
@@ -19,13 +26,16 @@ public class ManagerAccrualOfInterest implements Runnable {
         thread.start();
     }
 
+    /**
+     * Check every half minute whether interest should be charged at the end of the month and interest, if it's need
+     */
     @Override
     public void run() {
         while (true) {
             try {
                 LocalDate now = LocalDate.now();
                 if (now.lengthOfMonth() == now.getDayOfMonth()) {
-                    bankAccountService.interestOnBalance();
+                    bankAccountService.accruePercentOnUserBalancesOfCleverBank();
                     logger.info("Percent was accrued on account balances");
                 }
                 Thread.sleep(30000);

@@ -27,7 +27,7 @@ public class Main {
 //        bankAccountService.replenishmentAccount(1l, BigDecimal.valueOf(1000));
 //        transactionService.createStatementOfAccount(5l, dateTime, LocalDateTime.now());
 
-        Menu menu = BeanRegistration.refgistrationMenu();
+        Menu menu = BeanRegistration.registrationMenu();
         menu.getMenu();
 //        List<Transaction> tra = TransactionServiceImpl.getInstance().createStatementOfAccount(5l, dateTime, LocalDateTime.now());
 //        tra.stream().forEach(System.out::println);
