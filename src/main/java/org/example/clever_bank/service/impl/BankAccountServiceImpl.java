@@ -9,6 +9,7 @@ import org.example.clever_bank.dao.BankDao;
 import org.example.clever_bank.dao.TransactionDao;
 import org.example.clever_bank.entity.Bank;
 import org.example.clever_bank.entity.BankAccount;
+import org.example.clever_bank.entity.Loggable;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
@@ -48,6 +49,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
+    @Loggable
     public BankAccount add(BankAccount bankAccount) {
         if (!Validator.getInstance().validateAmount(bankAccount.getBalance())) {
             throw new ServiceException("Enter correct amount of money");
@@ -92,6 +94,7 @@ public class BankAccountServiceImpl implements BankAccountService {
      * @return
      */
     @Override
+    @Loggable
     public BankAccount findById(Long id) {
         return bankAccountDao.read(id).orElseThrow(() -> new ServiceException("Bank account is not found"));
     }
@@ -100,6 +103,7 @@ public class BankAccountServiceImpl implements BankAccountService {
      * @return
      */
     @Override
+    @Loggable
     public List<BankAccount> findAll() {
         List<BankAccount> bankAccounts = bankAccountDao.readAll();
         if (bankAccounts.isEmpty()) {
@@ -109,6 +113,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
+    @Loggable
     public BankAccount update(BankAccount bankAccount) {
         if (Validator.getInstance().validateAmount(bankAccount.getBalance())) {
             throw new ServiceException("Enter correct amount of money");
@@ -117,11 +122,13 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
+    @Loggable
     public boolean remove(Long id) {
         return bankAccountDao.delete(id);
     }
 
     @Override
+    @Loggable
     public BankAccount replenishmentAccount(Long accountId, BigDecimal amount) {
         BankAccount updatedBankAccount;
         Connection connection = ConnectionPool.lockingPool().takeConnection();
@@ -159,6 +166,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
+    @Loggable
     public BankAccount withdrawal(Long accountId, BigDecimal amount) {
         BankAccount updatedBankAccount;
         Connection connection = ConnectionPool.lockingPool().takeConnection();
@@ -201,6 +209,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
+    @Loggable
     public BigDecimal transferMoney(Long ownerId, Long bankId, String loginUser, BigDecimal amount) {
         BankAccount owner;
         Connection connection = ConnectionPool.lockingPool().takeConnection();
@@ -258,6 +267,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
+    @Loggable
     public void accruePercentOnUserBalancesOfCleverBank() {
         List<BankAccount> bankAccounts = bankAccountDao.readByBankId(CLEVER_BANK_ID);
         if (bankAccounts.isEmpty()) {

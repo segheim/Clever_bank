@@ -7,6 +7,7 @@ import org.example.clever_bank.dao.AbstractDao;
 import org.example.clever_bank.dao.TransactionDao;
 import org.example.clever_bank.entity.Account;
 import org.example.clever_bank.entity.BankAccount;
+import org.example.clever_bank.entity.Loggable;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.util.ConfigurationManager;
 
@@ -47,8 +48,8 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
     }
 
     @Override
+    @Loggable
     public Optional<Transaction> create(Transaction entity) {
-        logger.trace("start create transaction");
         Optional<Transaction> createdTransaction = Optional.empty();
         try (final Connection connection = pool.takeConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_NEW_TRANSACTION, Statement.RETURN_GENERATED_KEYS)) {
@@ -72,8 +73,8 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
     }
 
     @Override
+    @Loggable
     public Optional<Transaction> read(Long id) {
-        logger.trace("start read transaction");
         Optional<Transaction> readTransaction = Optional.empty();
         try (final Connection connection = pool.takeConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TRANSACTION_BY_ID)) {
@@ -90,8 +91,8 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
     }
 
     @Override
+    @Loggable
     public List<Transaction> readAll() {
-        logger.trace("start read all transactions");
         List<Transaction> transactions = new ArrayList<>();
         try (final Connection connection = pool.takeConnection();
              final Statement statement = connection.createStatement();
@@ -118,8 +119,8 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
     }
 
     @Override
+    @Loggable
     public List<Transaction> readByPeriodAndAccountId(Long accountId, LocalDateTime dateFrom, LocalDateTime dateTo) {
-        logger.trace("start read transactions by period and account id");
         List<Transaction> transactions = new ArrayList<>();
         try (final Connection connection = pool.takeConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TRANSACTIONS_BY_PERIOD_AND_ACCOUNT)) {

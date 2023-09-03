@@ -29,7 +29,6 @@ public class BeanRegistration {
         ConnectionPool connectionPool = ConnectionPool.lockingPool();
         connectionPool.init();
         Scanner scanner = new Scanner(System.in);
-        AuthMenu authMenu = new AuthMenu(scanner, new AccountServiceImpl(new AccountDaoImpl(connectionPool, logger)));
 
         BankAccountDaoImpl bankAccountDao = new BankAccountDaoImpl(connectionPool, logger);
         AccountDaoImpl accountDao = new AccountDaoImpl(connectionPool, logger);
@@ -38,6 +37,7 @@ public class BeanRegistration {
         BankAccountServiceImpl bankAccountService = new BankAccountServiceImpl(
                 bankAccountDao, new TransactionDaoImpl(connectionPool, logger),
                 accountDao, new BankDaoImpl(connectionPool, logger), paperWorker);
+        AuthMenu authMenu = new AuthMenu(scanner, new AccountServiceImpl(new AccountDaoImpl(connectionPool, logger), bankAccountService));
 
         BankActivityMenu bankActivityMenu = new BankActivityMenu(scanner, bankAccountService,
                 new TransactionServiceImpl(new TransactionDaoImpl(connectionPool, logger), bankAccountDao, accountDao, paperWorker));

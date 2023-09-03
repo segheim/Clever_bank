@@ -2,6 +2,7 @@ package org.example.clever_bank.connection;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.example.clever_bank.entity.Loggable;
 import org.example.clever_bank.exception.InitializeConnectionPoolError;
 import org.example.clever_bank.util.ConfigurationManager;
 
@@ -21,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class LockingConnectionPool implements ConnectionPool {
 
-    private static final Logger LOG = LogManager.getLogger(LockingConnectionPool.class);
+    private static final Logger logger = LogManager.getLogger(LockingConnectionPool.class);
 
     private static final String DB_URL = ConfigurationManager.getProperty("db.url");
     private static final String DB_USER = ConfigurationManager.getProperty("db.user");
@@ -44,6 +45,7 @@ public class LockingConnectionPool implements ConnectionPool {
         this.givenAwayConnections = new LinkedBlockingQueue<>();
     }
 
+    @Loggable
     public static LockingConnectionPool getInstance() {
         if (!isCreated.get()) {
             locker.lock();
@@ -56,7 +58,7 @@ public class LockingConnectionPool implements ConnectionPool {
                 locker.unlock();
             }
         }
-        LOG.info("create instance: {}", instance);
+        logger.info("create instance: {}", instance);
         return instance;
     }
 
@@ -90,17 +92,19 @@ public class LockingConnectionPool implements ConnectionPool {
         closeCollectionConnections(givenAwayConnections);
     }
 
+    @Loggable
     private void closeCollectionConnections(BlockingQueue<ProxyConnection> collection) {
         try {
             collection.take().realClose();
         } catch (SQLException e) {
-            LOG.error("could not close connection", e);
+            logger.error("could not close connection", e);
         } catch (InterruptedException e) {
-            LOG.error("method closeCollectionConnections from LockingConnectionPool was interrupted", e);
+            logger.error("method closeCollectionConnections from LockingConnectionPool was interrupted", e);
         }
     }
 
     @Override
+    @Loggable
     public Connection takeConnection() {
         ProxyConnection proxyConnection = null;
         try {
@@ -110,26 +114,28 @@ public class LockingConnectionPool implements ConnectionPool {
             }
             givenAwayConnections.add(proxyConnection);
         } catch (InterruptedException e) {
-            LOG.error("method takeConnection from LockingConnectionPool was interrupted", e);
+            logger.error("method takeConnection from LockingConnectionPool was interrupted", e);
             Thread.currentThread().interrupt();
         } catch (SQLException e) {
-            LOG.error("could not close connection", e);
+            logger.error("could not close connection", e);
         }
         return proxyConnection;
     }
 
     @Override
+    @Loggable
     public void returnConnection(Connection connection) {
         if (connection instanceof ProxyConnection && givenAwayConnections.remove(connection)) {
             try {
                 availableConnections.put((ProxyConnection) connection);
             } catch (InterruptedException e) {
-                LOG.error("method takeConnection from LockingConnectionPool was interrupted", e);
+                logger.error("method takeConnection from LockingConnectionPool was interrupted", e);
                 Thread.currentThread().interrupt();
             }
         }
     }
 
+    @Loggable
     private void initializeConnections(int amount) {
         try {
             for (int i = 0; i < amount; i++) {
@@ -138,29 +144,29 @@ public class LockingConnectionPool implements ConnectionPool {
                 availableConnections.add(proxyConnection);
             }
         } catch (SQLException e) {
-            LOG.fatal("error occurred creating Connection", e);
+            logger.fatal("error occurred creating Connection", e);
             throw new InitializeConnectionPoolError("failed creating Connection", e);
         }
     }
 
+    @Loggable
     private void registerDrivers() {
-        LOG.trace("registering sql drivers");
         try {
             DriverManager.registerDriver(DriverManager.getDriver(DB_URL));
         } catch (SQLException e) {
-            LOG.info("could not register drivers", e);
+            logger.info("could not register drivers", e);
             throw new InitializeConnectionPoolError("sql drivers are not initialize", e);
         }
     }
 
+    @Loggable
     private void deregisterDrivers() {
-        LOG.trace("unregistering sql drivers");
         final Enumeration<Driver> drivers = DriverManager.getDrivers();
         while (drivers.hasMoreElements()) {
             try {
                 DriverManager.deregisterDriver(drivers.nextElement());
             } catch (SQLException e) {
-                LOG.error("could not deregister drivers", e);
+                logger.error("could not deregister drivers", e);
             }
         }
     }

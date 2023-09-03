@@ -2,6 +2,7 @@ package org.example.clever_bank.service.text.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.example.clever_bank.entity.Loggable;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.service.text.PaperWorker;
 import org.example.clever_bank.util.ConfigurationManager;
@@ -27,6 +28,7 @@ public class PaperWorkerPdf implements PaperWorker {
 
 
     @Override
+    @Loggable
     public void createBill(Long transactionId, String type, String bankSender, String bankRecipient, Long bankAccountSenderId,
                            Long bankAccountRecipientId, BigDecimal amount, LocalDateTime dateCreate){
         String bill = String.format("""
@@ -50,26 +52,10 @@ public class PaperWorkerPdf implements PaperWorker {
         } catch (IOException e) {
             logger.error("Could not write to file");
         }
-//
-//        PDDocument document = new PDDocument();
-//        PDPage page1 = new PDPage(PDRectangle.A4);
-//        PDRectangle rect = page1.getMediaBox();
-//        document.addPage(page1);
-//
-//        PDPageContentStream cos = new PDPageContentStream(document, page1);
-//        PDType1Font font = new PDType1Font(Standard14Fonts.getMappedFontName("TIMES_ROMAN"));
-//
-//        cos.beginText();
-//        cos.setFont(font, 12);
-//        cos.showText(bill);
-//        cos.endText();
-//        cos.close();
-//
-//        document.save(String.format(ConfigurationManager.getProperty("pdf.path.bill.save"), transactionId));
-//        document.close();
     }
 
     @Override
+    @Loggable
     public String createStatement(List<Transaction> transactions, LocalDateTime periodFrom, LocalDateTime periodTo) {
         String statementOfAccount = String.format("""                
                                       Выписка

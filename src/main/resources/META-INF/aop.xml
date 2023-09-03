@@ -1,9 +1,0 @@
-<aspectj>
-    <aspects>
-        <aspect name="org.example.clever_bank.aspect.AspectLogger"/>
-        <weaver options="-verbose">
-            <!-- weave anything -->
-            <include within="*" />
-        </weaver>
-    </aspects>
-</aspectj>

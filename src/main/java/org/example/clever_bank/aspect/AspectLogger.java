@@ -20,25 +20,14 @@ public class AspectLogger {
     }
 
     @Around("loggableMethod()")
-    public Object handleRetries(final ProceedingJoinPoint point) {
+    public Object handleRetries(final ProceedingJoinPoint point) throws Throwable {
         long start = System.currentTimeMillis();
-        System.out.println("LOGGGGGGGERRERERRERERE");
         logger.info(String.format("START %s #%s(%s)",
                 start,
                 ((MethodSignature) point.getSignature()).getMethod().getName(),
                 Arrays.toString(point.getArgs())));
 
-        Object result;
-        try {
-            result = point.proceed();
-        } catch (Throwable e) {
-            logger.error(String.format("ERROR #%s(%s) Message %s",
-                    System.currentTimeMillis(),
-                    ((MethodSignature) point.getSignature()).getMethod().getName(),
-                    Arrays.toString(point.getArgs())),
-                    e.getMessage());
-            throw new RuntimeException(e);
-        }
+                Object result = point.proceed();
 
         logger.info(String.format("FINISH %s #%s(%s): %s",
                 System.currentTimeMillis() - start,

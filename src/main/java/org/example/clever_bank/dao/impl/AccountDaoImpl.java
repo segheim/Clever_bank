@@ -6,6 +6,7 @@ import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.AbstractDao;
 import org.example.clever_bank.dao.AccountDao;
 import org.example.clever_bank.entity.Account;
+import org.example.clever_bank.entity.Loggable;
 import org.example.clever_bank.util.ConfigurationManager;
 
 import java.sql.*;
@@ -30,8 +31,8 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
     }
 
     @Override
+    @Loggable
     public Optional<Account> create(Account entity) {
-        logger.trace("start create account");
         Optional<Account> createdAccount = Optional.empty();
         try (final Connection connection = pool.takeConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(INSERT_NEW_ACCOUNT, Statement.RETURN_GENERATED_KEYS)) {
@@ -52,8 +53,8 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
     }
 
     @Override
+    @Loggable
     public Optional<Account> read(Long id) {
-        logger.trace("start read account");
         Optional<Account> readAccount = Optional.empty();
         try (final Connection connection = pool.takeConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ACCOUNT_BY_ID)) {
@@ -70,8 +71,8 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
     }
 
     @Override
+    @Loggable
     public Optional<Account> readByLogin(String login) {
-        logger.trace("start read by login account");
         Optional<Account> readAccount = Optional.empty();
         try (final Connection connection = pool.takeConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ACCOUNT_BY_LOGIN)) {
@@ -88,8 +89,8 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
     }
 
     @Override
+    @Loggable
     public List<Account> readAll() {
-        logger.trace("start read all account");
         List<Account> accounts = new ArrayList<>();
         try (final Connection connection = pool.takeConnection();
              final Statement statement = connection.createStatement();
@@ -106,8 +107,8 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
     }
 
     @Override
+    @Loggable
     public Optional<Account> update(Account entity) {
-        logger.trace("start update account");
         Optional<Account> updatedAccount = Optional.empty();
         try (final Connection connection = pool.takeConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_ACCOUNT)) {
@@ -125,8 +126,8 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
     }
 
     @Override
+    @Loggable
     public boolean delete(Long id) {
-        logger.trace("start delete account");
         boolean deleteAccount = false;
         try (final Connection connection = pool.takeConnection();
              final PreparedStatement preparedStatement = connection.prepareStatement(DELETE_ACCOUNT)) {

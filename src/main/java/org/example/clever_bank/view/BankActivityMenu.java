@@ -75,10 +75,8 @@ public class BankActivityMenu {
     public String internalTransfer(Long accountId) {
         System.out.println("Enter account login to whom you want to transfer money: ");
         String transferAccountLogin = scanner.nextLine();
-        scanner.nextLine();
         System.out.println("Enter transfer money amount: ");
         BigDecimal moneyAmount = scanner.nextBigDecimal();
-        scanner.nextLine();
         BigDecimal balance;
         try {
             balance = bankAccountService.transferMoney(accountId, Long.valueOf(ConfigurationManager.getProperty("bank.id")),

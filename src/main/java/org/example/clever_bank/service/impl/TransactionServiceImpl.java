@@ -7,6 +7,7 @@ import org.example.clever_bank.dao.impl.AccountDaoImpl;
 import org.example.clever_bank.dao.impl.BankAccountDaoImpl;
 import org.example.clever_bank.dao.impl.TransactionDaoImpl;
 import org.example.clever_bank.entity.BankAccount;
+import org.example.clever_bank.entity.Loggable;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
@@ -40,6 +41,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    @Loggable
     public Transaction add(Transaction transaction) throws ValidationException {
         if (!Validator.getInstance().validateType(transaction.getType())) {
             throw new ValidationException("Transaction type is not valid");
@@ -53,12 +55,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    @Loggable
     public Transaction findById(Long id) {
         return transactionDao.read(id)
                 .orElseThrow(() -> new NotFoundEntityException(String.format("Transaction with id=%d is not found", id)));
     }
 
     @Override
+    @Loggable
     public List<Transaction> findAll() {
         List<Transaction> transactions = transactionDao.readAll();
         if (transactions.isEmpty()) {
@@ -68,12 +72,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    @Loggable
     public Transaction update(Transaction transaction) throws ValidationException {
         return transactionDao.update(transaction)
                 .orElseThrow(() -> new ServiceException("Transaction is not updated"));
     }
 
     @Override
+    @Loggable
     public boolean remove(Long id) {
         boolean flag;
         try {
@@ -85,6 +91,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    @Loggable
     public String createStatementOfAccount(Long accountId, LocalDateTime periodFrom, LocalDateTime periodTo) {
         if (periodFrom.equals(periodTo)) {
             BankAccount bankAccount = bankAccountDao.readByAccountIdAndBankId(accountId, Long.valueOf(ConfigurationManager.getProperty("bank.id")))
