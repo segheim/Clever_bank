@@ -36,10 +36,11 @@ public interface PaperWorker {
      * @param transaction - List transactions
      * @param periodFrom - start date
      * @param periodTo - finish date
+     * @param fileType - file type
      * @return statement of account text
      * @throws IOException
      * @throws URISyntaxException
      */
-    String createStatement(List<Transaction> transaction, LocalDateTime periodFrom, LocalDateTime periodTo) throws IOException, URISyntaxException;
+    String createStatement(List<Transaction> transaction, LocalDateTime periodFrom, LocalDateTime periodTo, String fileType) throws IOException, URISyntaxException;
 
 }

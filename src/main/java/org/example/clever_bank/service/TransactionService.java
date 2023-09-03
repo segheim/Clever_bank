@@ -18,6 +18,6 @@ public interface TransactionService extends Service<Transaction> {
      * @param periodTo - finish date
      * @return statement of account text
      */
-    String createStatementOfAccount(Long accountId, LocalDateTime periodFrom, LocalDateTime periodTo);
+    String createStatementOfAccount(Long accountId, LocalDateTime periodFrom, LocalDateTime periodTo, String fileType);
 
 }

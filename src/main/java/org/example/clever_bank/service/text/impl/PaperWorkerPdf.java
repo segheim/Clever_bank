@@ -1,5 +1,7 @@
 package org.example.clever_bank.service.text.impl;
 
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.clever_bank.entity.Loggable;
@@ -25,7 +27,7 @@ public class PaperWorkerPdf implements PaperWorker {
     private static final DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter formatterTimeFormation = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH.mm");
     private static final DateTimeFormatter formatterSave = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
-
+    public static final String FILE_TYPE_NAME_TXT = "txt";
 
     @Override
     @Loggable
@@ -46,9 +48,8 @@ public class PaperWorkerPdf implements PaperWorker {
                 """, transactionId, dateCreate.format(formatterDate), dateCreate.format(formatterTime), type, bankSender,
                 bankRecipient, bankAccountSenderId, bankAccountRecipientId, amount);
 
-//        URL resource = this.getClass().getClassLoader().getResource("");
         try {
-            writeToFile(transactionId, bill, ConfigurationManager.getProperty("path.bill"));
+            writeToTxtFile(transactionId, bill, ConfigurationManager.getProperty("path.bill"));
         } catch (IOException e) {
             logger.error("Could not write to file");
         }
@@ -56,7 +57,7 @@ public class PaperWorkerPdf implements PaperWorker {
 
     @Override
     @Loggable
-    public String createStatement(List<Transaction> transactions, LocalDateTime periodFrom, LocalDateTime periodTo) {
+    public String createStatement(List<Transaction> transactions, LocalDateTime periodFrom, LocalDateTime periodTo, String fileType) {
         String statementOfAccount = String.format("""                
                                       Выписка
                                     Clever Bank
@@ -78,15 +79,39 @@ public class PaperWorkerPdf implements PaperWorker {
 
         StringBuilder stringBuilderBill = fetchLineTransactionInfo(transactions, statementOfAccount);
         try {
-            writeToFile(transactions.get(Constant.INDEX).getBankAccountFrom().getId(),
-                    stringBuilderBill.toString(), ConfigurationManager.getProperty("path.statement"));
+            if (fileType.equals(FILE_TYPE_NAME_TXT)) {
+                writeToTxtFile(transactions.get(Constant.INDEX).getBankAccountFrom().getId(),
+                        stringBuilderBill.toString(), ConfigurationManager.getProperty("path.statement.txt"));
+            } else {
+                writeToPdfFile(transactions.get(Constant.INDEX).getBankAccountFrom().getId(),
+                        stringBuilderBill.toString(), ConfigurationManager.getProperty("path.statement.pdf"));
+            }
         } catch (IOException e) {
-            logger.error("Could not write to file");
+            logger.error("Could not write to txt file");
+        } catch (DocumentException e) {
+            logger.error("Could not write to pdf file");
         }
         return stringBuilderBill.toString();
     }
 
-    private void writeToFile(Long transactionId, String bill, String path) throws IOException {
+    private void writeToPdfFile(Long transactionId, String text, String path) throws IOException, DocumentException {
+
+        Document document = new Document();
+        FileOutputStream os = new FileOutputStream(String.format(path, transactionId, LocalDateTime.now().format(formatterSave)));
+        PdfWriter.getInstance(document, os);
+
+        document.open();
+        Font font = FontFactory.getFont(FontFactory.HELVETICA, 12, BaseColor.BLACK);
+
+        String[] splitText = text.split("\n");
+        for (String line : splitText) {
+            document.add(new Chunk(line, font));
+        }
+        document.close();
+        os.close();
+    }
+
+    private void writeToTxtFile(Long transactionId, String bill, String path) throws IOException {
         File file = new File(String.format(path, transactionId, LocalDateTime.now().format(formatterSave)));
         try(FileOutputStream out = new FileOutputStream(file)){
             out.write(bill.getBytes());

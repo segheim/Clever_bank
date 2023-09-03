@@ -169,9 +169,9 @@ public class BankActivityMenu {
             scanner.nextLine();
             switch (formatChoice) {
                 case 1:
-                    return transactionService.createStatementOfAccount(accountId, periodFrom, periodTo);
+                    return transactionService.createStatementOfAccount(accountId, periodFrom, periodTo, "txt");
                 case 2:
-                    return " ";
+                    return transactionService.createStatementOfAccount(accountId, periodFrom, periodTo, "pdf");
                 default:
                     System.out.println("Enter correct number of format!");
             }

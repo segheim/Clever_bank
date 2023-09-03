@@ -39,7 +39,8 @@ table:
 ###################################################
 path:
   bill: check/bill%s_%s.txt
-  statement: statement/statement%s_%s.txt
+  statement.txt: statement/statement%s_%s.txt
+  statement.pdf: statement/statement%s_%s.pdf
   bill.template: template.pdf
   statement.template: statement.pdf
 
