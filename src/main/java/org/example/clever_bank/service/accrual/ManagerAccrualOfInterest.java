@@ -12,6 +12,7 @@ import java.time.LocalDate;
 public class ManagerAccrualOfInterest implements Runnable {
 
     private static final Logger logger = LogManager.getLogger(ManagerAccrualOfInterest.class);
+    public static final int TIME_FOR_CHECK = 30000;
 
     private final BankAccountService bankAccountService;
 
@@ -38,7 +39,7 @@ public class ManagerAccrualOfInterest implements Runnable {
                     bankAccountService.accruePercentOnUserBalancesOfCleverBank();
                     logger.info("Percent was accrued on account balances");
                 }
-                Thread.sleep(30000);
+                Thread.sleep(TIME_FOR_CHECK);
                 logger.info("ACCRUED CHECKED");
             } catch (InterruptedException e) {
                 logger.error("Thread has been interrupted in ManagerAccrualOfInterest");

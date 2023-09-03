@@ -1,5 +1,6 @@
 package org.example.clever_bank.view;
 
+import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.entity.Account;
 
 import java.util.Scanner;
@@ -88,6 +89,7 @@ public class Menu {
                     }
                 case 3:
                     System.out.println("\nBye!");
+                    ConnectionPool.lockingPool().shoutDown();
                     System.exit(1);
                     break;
                 default:

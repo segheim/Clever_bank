@@ -89,19 +89,12 @@ public class BankAccountServiceImpl implements BankAccountService {
         return createBankAccount;
     }
 
-    /**
-     * @param id
-     * @return
-     */
     @Override
     @Loggable
     public BankAccount findById(Long id) {
         return bankAccountDao.read(id).orElseThrow(() -> new ServiceException("Bank account is not found"));
     }
 
-    /**
-     * @return
-     */
     @Override
     @Loggable
     public List<BankAccount> findAll() {
@@ -276,7 +269,7 @@ public class BankAccountServiceImpl implements BankAccountService {
         bankAccounts.stream()
                 .peek(bankAccount -> bankAccount.setBalance(
                         bankAccount.getBalance().add(bankAccount.getBalance().multiply(BigDecimal.valueOf(Double
-                                .valueOf(ConfigurationManager.getProperty("accrual.percentage")))))
+                                .parseDouble(ConfigurationManager.getProperty("accrual.percentage")))))
                 ))
                 .collect(Collectors.toList());
         bankAccounts.stream()

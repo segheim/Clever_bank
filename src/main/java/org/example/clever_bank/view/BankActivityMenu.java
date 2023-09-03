@@ -89,6 +89,7 @@ public class BankActivityMenu {
 
     /**
      * External transfer to another bank
+     *
      * @param accountId - account id
      * @return account balance
      */
