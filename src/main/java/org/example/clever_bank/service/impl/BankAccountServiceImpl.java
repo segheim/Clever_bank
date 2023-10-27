@@ -57,7 +57,7 @@ public class BankAccountServiceImpl implements BankAccountService {
         accountDao.read(bankAccount.getAccount().getId())
                 .orElseThrow(() -> new NotFoundEntityException(String.format("Account with id=%d is not present", bankAccount.getAccount().getId())));
         BankAccount createBankAccount;
-        Connection connection = ConnectionPool.lockingPool().takeConnection();
+        Connection connection  = ConnectionPool.lockingPool().takeConnection();
         try {
             connection.setAutoCommit(false);
             createBankAccount = bankAccountDao.create(bankAccount)
@@ -66,7 +66,7 @@ public class BankAccountServiceImpl implements BankAccountService {
             for (Bank bank : banks) {
                 boolean bankBankAccount = bankAccountDao.createBankBankAccount(bank.getId(), createBankAccount.getId());
                 if (!bankBankAccount) {
-                    connection.rollback();
+                    throw new ServiceException("BankBankAccount is not created");
                 }
             }
             connection.commit();
@@ -108,7 +108,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     @Override
     @Loggable
     public BankAccount update(BankAccount bankAccount) {
-        if (Validator.getInstance().validateAmount(bankAccount.getBalance())) {
+        if (!Validator.getInstance().validateAmount(bankAccount.getBalance())) {
             throw new ServiceException("Enter correct amount of money");
         }
         return bankAccountDao.update(bankAccount).orElseThrow(() -> new ServiceException("Bank account is not updated"));
@@ -134,7 +134,7 @@ public class BankAccountServiceImpl implements BankAccountService {
             updatedBankAccount = bankAccountDao.update(bankAccount)
                     .orElseThrow(() -> new ServiceException("Operation is failed. Bank account is not updated"));
 
-            Transaction transaction = craeteNewTransaction(amount, bankAccount, bankAccount, ConfigurationManager.getProperty("operation.replenishment"));
+            Transaction transaction = createNewTransaction(amount, bankAccount, bankAccount, ConfigurationManager.getProperty("operation.replenishment"));
             paperWorker.createBill(transaction.getId(), transaction.getType(), CLEVER_BANK_NAME, CLEVER_BANK_NAME,
                     bankAccount.getId(), bankAccount.getId(), amount, transaction.getDateCreate());
 
@@ -174,9 +174,9 @@ public class BankAccountServiceImpl implements BankAccountService {
             }
             bankAccount.setBalance(result);
             updatedBankAccount = bankAccountDao.update(bankAccount)
-                    .orElseThrow(() -> new ServiceException("Operation is failed.Bank account is not updated"));
+                    .orElseThrow(() -> new ServiceException("Operation is failed. Bank account is not updated"));
 
-            Transaction transaction = craeteNewTransaction(amount, bankAccount, bankAccount, ConfigurationManager.getProperty("operation.withdrawal"));
+            Transaction transaction = createNewTransaction(amount, bankAccount, bankAccount, ConfigurationManager.getProperty("operation.withdrawal"));
             paperWorker.createBill(transaction.getId(), transaction.getType(), CLEVER_BANK_NAME, CLEVER_BANK_NAME,
                     bankAccount.getId(), bankAccount.getId(), amount, transaction.getDateCreate());
 
@@ -208,13 +208,14 @@ public class BankAccountServiceImpl implements BankAccountService {
         Connection connection = ConnectionPool.lockingPool().takeConnection();
         try {
             connection.setAutoCommit(false);
+            Bank bankTo = bankDao.read(bankId).orElseThrow(() -> new NotFoundEntityException("Bank is not found"));
             BankAccount bankAccountOwner = bankAccountDao.readByAccountIdAndBankId(ownerId, CLEVER_BANK_ID)
                     .orElseThrow(() -> new NotFoundEntityException("Bank Account owner is not found"));
 
             BankAccount bankAccountUser = bankAccountDao.readByAccountLoginAndBankId(loginUser, bankId)
                     .orElseThrow(() -> new NotFoundEntityException("Bank Account of user is not found"));
 
-            Transaction transaction = craeteNewTransaction(amount, bankAccountOwner, bankAccountUser, ConfigurationManager.getProperty("operation.transaction"));
+            Transaction transaction = createNewTransaction(amount, bankAccountOwner, bankAccountUser, ConfigurationManager.getProperty("operation.transaction"));
 
             BigDecimal ownerBalance = bankAccountOwner.getBalance();
             BigDecimal newOwnerBalance = ownerBalance.subtract(amount);
@@ -229,11 +230,9 @@ public class BankAccountServiceImpl implements BankAccountService {
             Optional<BankAccount> optionalUserBankAccountUpdated = bankAccountDao.update(bankAccountUser);
 
             if (optionalOwnerBankAccountUpdated.isEmpty() || optionalUserBankAccountUpdated.isEmpty()) {
-                connection.rollback();
+                throw new ServiceException("Bank account is not updated");
             }
             owner = optionalOwnerBankAccountUpdated.get();
-
-            Bank bankTo = bankDao.read(bankId).orElseThrow(() -> new NotFoundEntityException("Bank is not found"));
 
             paperWorker.createBill(transaction.getId(), transaction.getType(), CLEVER_BANK_NAME, bankTo.getName(),
                     bankAccountOwner.getId(), bankAccountUser.getId(), amount, transaction.getDateCreate());
@@ -277,7 +276,7 @@ public class BankAccountServiceImpl implements BankAccountService {
                         .orElseThrow(() -> new NotFoundEntityException(String.format("Bank account with id=%d is not updated", bankAccount.getId()))));
     }
 
-    private Transaction craeteNewTransaction(BigDecimal amount, BankAccount bankAccountOwner, BankAccount bankAccountUser, String type) {
+    private Transaction createNewTransaction(BigDecimal amount, BankAccount bankAccountOwner, BankAccount bankAccountUser, String type) {
         Transaction transaction = Transaction.builder()
                 .bankAccountFrom(bankAccountOwner)
                 .bankAccountTo(bankAccountUser)

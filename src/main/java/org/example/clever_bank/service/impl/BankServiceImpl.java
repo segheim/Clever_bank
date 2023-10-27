@@ -22,10 +22,12 @@ public class BankServiceImpl implements BankService {
     @Override
     @Loggable
     public Bank add(Bank bank) throws ValidationException {
-        if (Validator.getInstance().validateLogin(bank.getName())) {
+        if (!Validator.getInstance().validateLogin(bank.getName())) {
             throw new ValidationException("Bank name is not valid");
         }
-        bankDao.readByName(bank.getName()).orElseThrow(() -> new NotFoundEntityException(String.format("Bank with name=%s is not present", bank.getName())));
+        if (bankDao.readByName(bank.getName()).isPresent()) {
+            throw new ServiceException(String.format("Bank with name=%s is present", bank.getName()));
+        }
         return bankDao.create(bank).orElseThrow(() -> new ServiceException("Bank is not created"));
     }
 

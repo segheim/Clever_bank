@@ -26,7 +26,7 @@ public class Validator {
         if (login == null) {
             return false;
         }
-        Pattern patternLogin = Pattern.compile("[a-zA-Z0-9.\\\\-_\\\\+]{3,60}");
+        Pattern patternLogin = Pattern.compile("[a-zA-Z0-9._\\-_+]{3,60}");
         Matcher matcherLogin = patternLogin.matcher(login);
         return matcherLogin.matches();
     }
