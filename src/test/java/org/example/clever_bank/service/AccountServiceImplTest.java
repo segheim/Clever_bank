@@ -9,7 +9,6 @@ import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
 import org.example.clever_bank.exception.ValidationException;
 import org.example.clever_bank.service.impl.AccountServiceImpl;
-import org.example.clever_bank.util.ConfigurationManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,8 +22,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -75,7 +73,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_add_shouldEnterAccountToAccountDao_whenEnterCorrectData() throws ValidationException {
+    public void test_add_shouldReturnAccount_whenEnterCorrectData() throws ValidationException {
         Mockito.when(accountDao.readByLogin(login)).thenReturn(Optional.empty());
         Mockito.when(accountDao.create(account)).thenReturn(Optional.of(expected));
         Mockito.when(bankAccountService.add(any())).thenReturn(bankAccount);
@@ -113,7 +111,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_findById_shouldFindAccount_whenEnterId(){
+    public void test_findById_shouldReturnAccount_whenEnterCorrectId(){
         Mockito.when(accountDao.read(id)).thenReturn(Optional.of(expected));
         Account actual = accountService.findById(id);
 
@@ -122,14 +120,14 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_findById_shouldThrowException_whenNotFindAccount() {
+    public void test_findById_shouldThrowException_whenEnterIncorrectId() {
         NotFoundEntityException exception = assertThrows(NotFoundEntityException.class, () -> accountService.findById(id));
         assertEquals(exception.getMessage(), String.format("Account with id=%d is not found", id));
         verify(accountDao).read(id);
     }
 
     @Test
-    public void test_add_shouldFindAccounts(){
+    public void test_add_shouldReturnAccounts(){
         List<Account> expectedList = List.of(expected);
 
         Mockito.when(accountDao.readAll()).thenReturn(expectedList);
@@ -149,7 +147,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_update_shouldUpdateAccount_whenEnterCorrectData() throws ValidationException {
+    public void test_update_shouldReturnAccount_whenEnterCorrectData() throws ValidationException {
         Mockito.when(accountDao.update(expected)).thenReturn(Optional.of(expected));
         Mockito.when(accountDao.read(id)).thenReturn(Optional.of(expected));
         Account actual = accountService.update(expected);
@@ -185,13 +183,11 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_remove_shouldRemoveAccount_whenEnterId(){
-        boolean expectedBoolean = true;
+    public void test_remove_shouldReturnTrue_whenEnterId(){
         Mockito.when(accountDao.read(id)).thenReturn(Optional.of(expected));
         Mockito.when(accountDao.delete(id)).thenReturn(true);
-        boolean actual = accountService.remove(id);
 
-        assertEquals(expectedBoolean, actual);
+        assertTrue(accountService.remove(id));
         verify(accountDao).delete(id);
     }
 
@@ -205,13 +201,11 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_remove_shouldThrowException_whenNotUpdateAccount() {
-        boolean expectedBoolean = false;
+    public void test_remove_shouldReturnFalse_whenNotUpdateAccount() {
         Mockito.when(accountDao.read(id)).thenReturn(Optional.of(expected));
         Mockito.when(accountDao.delete(id)).thenReturn(false);
 
-        boolean actualBoolean = accountService.remove(id);
-        assertEquals(expectedBoolean, expectedBoolean);
+        assertFalse(accountService.remove(id));
         verify(accountDao).delete(id);
     }
 
@@ -233,7 +227,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_authenticate_shouldGetAccount_whenEnterCorrectLoginPassword() throws ValidationException {
+    public void test_authenticate_shouldReturnAccount_whenEnterCorrectLoginPassword() throws ValidationException {
         account.setId(id);
         Mockito.when(accountDao.readByLogin(login)).thenReturn(Optional.of(account));
 

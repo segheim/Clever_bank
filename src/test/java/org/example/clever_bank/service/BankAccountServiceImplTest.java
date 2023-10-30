@@ -138,7 +138,7 @@ public class BankAccountServiceImplTest {
     }
 
     @Test
-    public void test_add_shouldEnterBankAccountToBankAccountDao_whenEnterCorrectData() {
+    public void test_add_shouldReturnBankAccountToBankAccountDao_whenEnterCorrectData() {
         Mockito.when(accountDao.read(id)).thenReturn(Optional.of(account));
         Mockito.when(bankAccountDao.create(bankAccount)).thenReturn(Optional.of(expected));
         Mockito.when(bankAccountDao.createBankBankAccount(id, id)).thenReturn(true);
@@ -185,7 +185,7 @@ public class BankAccountServiceImplTest {
     }
 
     @Test
-    public void test_findById_shouldFindBankAccount_whenEnterId() {
+    public void test_findById_shouldReturnBankAccount_whenEnterCorrectId() {
         Mockito.when(bankAccountDao.read(id)).thenReturn(Optional.of(expected));
         BankAccount actual = bankAccountService.findById(id);
 
@@ -194,7 +194,7 @@ public class BankAccountServiceImplTest {
     }
 
     @Test
-    public void test_add_shouldThrowException_whenBankAccountNotFound() {
+    public void test_add_shouldThrowException_whenEnterIncorrectId() {
         Mockito.when(bankAccountDao.read(id)).thenReturn(Optional.empty());
         ServiceException serviceException = assertThrows(ServiceException.class, () -> bankAccountService.findById(id));
 
@@ -202,7 +202,7 @@ public class BankAccountServiceImplTest {
     }
 
     @Test
-    public void test_findByAll_shouldFindBankAccounts() {
+    public void test_findByAll_shouldReturnBankAccounts() {
         List<BankAccount> expectedList = List.of(expected);
         Mockito.when(bankAccountDao.readAll()).thenReturn(expectedList);
         List<BankAccount> actual = bankAccountService.findAll();

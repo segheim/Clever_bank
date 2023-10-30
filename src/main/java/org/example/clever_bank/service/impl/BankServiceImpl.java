@@ -50,7 +50,7 @@ public class BankServiceImpl implements BankService {
     @Override
     @Loggable
     public Bank update(Bank bank) throws ValidationException {
-        if (Validator.getInstance().validateLogin(bank.getName())) {
+        if (!Validator.getInstance().validateLogin(bank.getName())) {
             throw new ValidationException("Bank name is not valid");
         }
         bankDao.read(bank.getId()).orElseThrow(() -> new NotFoundEntityException(String.format("Bank with id=%d is not found", bank.getId())));

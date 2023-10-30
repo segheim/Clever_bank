@@ -47,9 +47,9 @@ public class TransactionServiceImpl implements TransactionService {
             throw new ValidationException("Transaction type is not valid");
         }
         bankAccountDao.read(transaction.getBankAccountFrom().getId())
-                .orElseThrow(() -> new NotFoundEntityException(String.format("Bank account with id=%d is not present", transaction.getId())));
+                .orElseThrow(() -> new NotFoundEntityException(String.format("Bank account with id=%d is not present", transaction.getBankAccountFrom().getId())));
         bankAccountDao.read(transaction.getBankAccountTo().getId())
-                .orElseThrow(() -> new NotFoundEntityException(String.format("Bank account with id=%d is not present", transaction.getId())));
+                .orElseThrow(() -> new NotFoundEntityException(String.format("Bank account with id=%d is not present", transaction.getBankAccountTo().getId())));
         return transactionDao.create(transaction)
                 .orElseThrow(() -> new ServiceException("Transaction is not created"));
     }
@@ -81,20 +81,16 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Loggable
     public boolean remove(Long id) {
-        boolean flag;
-        try {
-            flag = transactionDao.delete(id);
-        } catch (Exception e) {
-            throw new ServiceException("Transaction is not deleted", e);
-        }
-        return flag;
+        transactionDao.read(id).orElseThrow(() -> new NotFoundEntityException(String.format("Transaction with id=%d is not found", id)));
+        return transactionDao.delete(id);
     }
 
     @Override
     @Loggable
     public String createStatementOfAccount(Long accountId, LocalDateTime periodFrom, LocalDateTime periodTo, String fileType) {
         if (periodFrom.equals(periodTo)) {
-            BankAccount bankAccount = bankAccountDao.readByAccountIdAndBankId(accountId, Long.valueOf(ConfigurationManager.getProperty("bank.id")))
+            BankAccount bankAccount = bankAccountDao.
+                    readByAccountIdAndBankId(accountId, Long.valueOf(ConfigurationManager.getProperty("bank.id")))
                     .orElseThrow(() -> new NotFoundEntityException(String.format("Bank account with account id=%d is not found", accountId)));
             periodFrom = bankAccount.getDateCreate();
         }
@@ -105,7 +101,7 @@ public class TransactionServiceImpl implements TransactionService {
             accountDao.read(accountId).orElseThrow(() -> new NotFoundEntityException("Account is not found"));
             List<Transaction> transactions = transactionDao.readByPeriodAndAccountId(accountId, periodFrom, periodTo);
             if (transactions.isEmpty()) {
-                throw new ServiceException("Empty");
+                throw new ServiceException("Transactions are absent");
             }
             statementOfAccount = paperWorker.createStatement(transactions, periodFrom, periodTo, fileType);
             connection.commit();
