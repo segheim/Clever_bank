@@ -9,7 +9,6 @@ import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
 import org.example.clever_bank.exception.ValidationException;
 import org.example.clever_bank.service.BankAccountService;
-import org.example.clever_bank.service.impl.AccountServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -112,7 +111,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_findById_shouldReturnAccount_whenEnterCorrectId(){
+    public void test_findById_shouldReturnAccount_whenEnterCorrectId() {
         Mockito.when(accountDao.read(id)).thenReturn(Optional.of(expected));
         Account actual = accountService.findById(id);
 
@@ -128,7 +127,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_add_shouldReturnAccounts(){
+    public void test_add_shouldReturnAccounts() {
         List<Account> expectedList = List.of(expected);
 
         Mockito.when(accountDao.readAll()).thenReturn(expectedList);
@@ -139,7 +138,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_add_shouldThrowException_whenNotAccounts(){
+    public void test_add_shouldThrowException_whenNotAccounts() {
         Mockito.when(accountDao.readAll()).thenReturn(List.of());
 
         ServiceException exception = assertThrows(ServiceException.class, () -> accountService.findAll());
@@ -175,7 +174,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_update_shouldThrowException_whenNotUpdateAccount(){
+    public void test_update_shouldThrowException_whenNotUpdateAccount() {
         Mockito.when(accountDao.read(id)).thenReturn(Optional.of(expected));
 
         ServiceException exception = assertThrows(ServiceException.class, () -> accountService.update(expected));
@@ -184,7 +183,7 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void test_remove_shouldReturnTrue_whenEnterId(){
+    public void test_remove_shouldReturnTrue_whenEnterId() {
         Mockito.when(accountDao.read(id)).thenReturn(Optional.of(expected));
         Mockito.when(accountDao.delete(id)).thenReturn(true);
 

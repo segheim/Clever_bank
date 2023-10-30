@@ -20,13 +20,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class PaperWorkerPdfTest {
 
-    private static final DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    private static final DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter formatterSave = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
 
     @InjectMocks
@@ -105,28 +103,28 @@ public class PaperWorkerPdfTest {
                 .build();
 
         BankAccount bankAccountFrom = BankAccount.builder()
-                                                    .id(id)
-                                                    .account(accountFrom)
-                                                    .banks(List.of(cleverBank))
-                                                    .balance(amount)
-                                                    .dateCreate(dateCreateBankAccountFrom)
-                                                    .build();
+                .id(id)
+                .account(accountFrom)
+                .banks(List.of(cleverBank))
+                .balance(amount)
+                .dateCreate(dateCreateBankAccountFrom)
+                .build();
 
         BankAccount bankAccountTo = BankAccount.builder()
-                                                .id(secondId)
-                                                .account(accountTo)
-                                                .banks(List.of(bestBank))
-                                                .balance(amount)
-                                                .dateCreate(dateCreateBankAccountTo)
-                                                .build();
+                .id(secondId)
+                .account(accountTo)
+                .banks(List.of(bestBank))
+                .balance(amount)
+                .dateCreate(dateCreateBankAccountTo)
+                .build();
 
         Transaction transaction = Transaction.builder()
-                                                .bankAccountFrom(bankAccountFrom)
-                                                .bankAccountTo(bankAccountTo)
-                                                .sum(amount)
-                                                .type("Transfer")
-                                                .dateCreate(dateCreateTransaction)
-                                                .build();
+                .bankAccountFrom(bankAccountFrom)
+                .bankAccountTo(bankAccountTo)
+                .sum(amount)
+                .type("Transfer")
+                .dateCreate(dateCreateTransaction)
+                .build();
 
         try (MockedStatic<ConfigurationManager> manager = Mockito.mockStatic(ConfigurationManager.class)) {
             manager.when(() -> ConfigurationManager.getProperty("path.statement.txt")).thenReturn(path);
