@@ -1,4 +1,4 @@
-package org.example.clever_bank.service;
+package org.example.clever_bank.service.impl;
 
 import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.impl.BankDaoImpl;

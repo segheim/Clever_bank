@@ -1,4 +1,4 @@
-package org.example.clever_bank.service;
+package org.example.clever_bank.service.impl;
 
 import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.impl.AccountDaoImpl;
@@ -11,7 +11,6 @@ import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
 import org.example.clever_bank.exception.ValidationException;
-import org.example.clever_bank.service.impl.TransactionServiceImpl;
 import org.example.clever_bank.service.text.PaperWorker;
 import org.example.clever_bank.util.ConfigurationManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,20 +121,20 @@ public class TransactionServiceImplTest {
                 .build();
 
         transaction = Transaction.builder()
-                                    .bankAccountFrom(bankAccountFrom)
-                                    .bankAccountTo(bankAccountTo)
-                                    .sum(money)
-                                    .type("Transfer")
-                                    .build();
+                .bankAccountFrom(bankAccountFrom)
+                .bankAccountTo(bankAccountTo)
+                .sum(money)
+                .type("Transfer")
+                .build();
 
         expected = Transaction.builder()
-                                .id(id)
-                                .bankAccountFrom(bankAccountFrom)
-                                .bankAccountTo(bankAccountTo)
-                                .sum(money)
-                                .type("Transfer")
-                                .dateCreate(dateTime)
-                                .build();
+                .id(id)
+                .bankAccountFrom(bankAccountFrom)
+                .bankAccountTo(bankAccountTo)
+                .sum(money)
+                .type("Transfer")
+                .dateCreate(dateTime)
+                .build();
     }
 
     @Test
@@ -258,7 +257,7 @@ public class TransactionServiceImplTest {
 
         List<Transaction> expectedList = List.of(expected);
 
-        Mockito.when(bankAccountDao.readByAccountIdAndBankId(id,id)).thenReturn(Optional.of(bankAccountTo));
+        Mockito.when(bankAccountDao.readByAccountIdAndBankId(id, id)).thenReturn(Optional.of(bankAccountTo));
         Mockito.when(accountDao.read(id)).thenReturn(Optional.of(accountTo));
         Mockito.when(transactionDao.readByPeriodAndAccountId(id, dateCreateBankAccountTo, periodTo)).thenReturn(expectedList);
         Mockito.when(paperWorker.createStatement(expectedList, dateCreateBankAccountTo, periodTo, fileType)).thenReturn(expectedText);
@@ -293,7 +292,7 @@ public class TransactionServiceImplTest {
         LocalDateTime periodFrom = LocalDateTime.of(2023, 10, 20, 15, 30);
         LocalDateTime periodTo = periodFrom;
         String fileType = "txt";
-        Mockito.when(bankAccountDao.readByAccountIdAndBankId(id,id)).thenReturn(Optional.empty());
+        Mockito.when(bankAccountDao.readByAccountIdAndBankId(id, id)).thenReturn(Optional.empty());
 
         NotFoundEntityException exception = assertThrows(NotFoundEntityException.class, () ->
                 transactionService.createStatementOfAccount(id, periodFrom, periodTo, fileType));
@@ -305,7 +304,7 @@ public class TransactionServiceImplTest {
         LocalDateTime periodFrom = LocalDateTime.of(2023, 10, 20, 15, 30);
         LocalDateTime periodTo = periodFrom;
         String fileType = "txt";
-        Mockito.when(bankAccountDao.readByAccountIdAndBankId(id,id)).thenReturn(Optional.of(bankAccountTo));
+        Mockito.when(bankAccountDao.readByAccountIdAndBankId(id, id)).thenReturn(Optional.of(bankAccountTo));
         Mockito.when(accountDao.read(id)).thenReturn(Optional.empty());
 
         ServiceException exception = assertThrows(ServiceException.class, () ->
@@ -319,7 +318,7 @@ public class TransactionServiceImplTest {
         LocalDateTime periodTo = periodFrom;
         String fileType = "txt";
 
-        Mockito.when(bankAccountDao.readByAccountIdAndBankId(id,id)).thenReturn(Optional.of(bankAccountTo));
+        Mockito.when(bankAccountDao.readByAccountIdAndBankId(id, id)).thenReturn(Optional.of(bankAccountTo));
         Mockito.when(accountDao.read(id)).thenReturn(Optional.of(accountTo));
         Mockito.when(transactionDao.readByPeriodAndAccountId(id, dateCreateBankAccountTo, periodTo)).thenReturn(Collections.emptyList());
 

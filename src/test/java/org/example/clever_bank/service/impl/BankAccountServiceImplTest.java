@@ -1,4 +1,4 @@
-package org.example.clever_bank.service;
+package org.example.clever_bank.service.impl;
 
 import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.AccountDao;
@@ -11,7 +11,6 @@ import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.entity.Transaction;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
-import org.example.clever_bank.service.impl.BankAccountServiceImpl;
 import org.example.clever_bank.service.text.PaperWorker;
 import org.example.clever_bank.util.ConfigurationManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +20,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;

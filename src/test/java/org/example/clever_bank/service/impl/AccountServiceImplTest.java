@@ -1,4 +1,4 @@
-package org.example.clever_bank.service;
+package org.example.clever_bank.service.impl;
 
 import org.example.clever_bank.connection.ConnectionPool;
 import org.example.clever_bank.dao.impl.AccountDaoImpl;
@@ -8,6 +8,7 @@ import org.example.clever_bank.entity.BankAccount;
 import org.example.clever_bank.exception.NotFoundEntityException;
 import org.example.clever_bank.exception.ServiceException;
 import org.example.clever_bank.exception.ValidationException;
+import org.example.clever_bank.service.BankAccountService;
 import org.example.clever_bank.service.impl.AccountServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
